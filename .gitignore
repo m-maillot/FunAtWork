@@ -1,0 +1,14 @@
+# PHP Composer
+/vendor/
+composer.phar
+composer.lock
+
+# SlimPHP
+logs/
+!/logs/README.md
+database/
+!/database/README.md
+
+# IntelliJ
+*.iml
+.idea/
