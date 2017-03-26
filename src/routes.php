@@ -6,9 +6,21 @@ $app->get('/', function ($request, $response, $args) {
     $this->logger->info("Slim-Skeleton '/' route");
 
     // Render index view
-    return 'It works';
+    return 'Nothing here :)';
 });
 
-$app->put('/api/player', 'App\Action\PlayerAction:create');
-$app->get('/api/players', 'App\Action\PlayerAction:fetch');
-$app->get('/api/player/{player_id}', 'App\Action\PlayerAction:fetchOne');
+$app->group('/api/v1', function () {
+
+    // Player API
+    $this->map(['POST'], '/players', 'App\Action\PlayerAction:create');
+    $this->map(['GET'], '/players', 'App\Action\PlayerAction:fetch');
+    $this->map(['GET'], '/players/{player_id}', 'App\Action\PlayerAction:fetchOne');
+
+    // Babyfoot API
+    $this->group('/babyfoot', function () {
+        $this->map(['GET'], '/games', 'App\Action\BabyfootAction:fetchGames');
+        $this->map(['POST'], '/start', 'App\Action\BabyfootAction:startGame');
+        $this->map(['POST'], '/stop', 'App\Action\BabyfootAction:gameOver');
+        $this->map(['POST'], '/goal', 'App\Action\BabyfootAction:addGoal');
+    });
+});

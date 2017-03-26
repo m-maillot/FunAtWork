@@ -23,6 +23,11 @@ return [
             'connection' => [
                 'driver'   => 'pdo_sqlite',
                 'path'     => '../database/db.sqlite'
+            ],
+            // use to create database with doctrine
+            'connection_creation' => [
+                'driver'   => 'pdo_sqlite',
+                'path'     => 'database/db.sqlite'
             ]
         ]
     ],

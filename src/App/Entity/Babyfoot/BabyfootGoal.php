@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\Babyfoot;
 
+use App\Entity\Player;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -20,38 +21,38 @@ class BabyfootGoal
      * @ORM\GeneratedValue
      * @var int
      */
-    private $id;
+    protected $id;
 
     /**
      * @ORM\Column(type="datetime")
      * @var \DateTime
      */
-    private $goalDate;
+    protected $goalDate;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Player", fetch="EAGER")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Player", fetch="EAGER")
      * @ORM\JoinColumn(name="striker_id", referencedColumnName="id")
      * @var Player
      **/
-    private $striker;
+    protected $striker;
 
     /**
      * @ORM\Column(type="integer")
      * @var int
      */
-    private $position;
+    protected $position;
 
     /**
      * @ORM\Column(type="boolean")
      * @var bool
      */
-    private $gamelle;
+    protected $gamelle;
 
     /**
-     * @ORM\ManyToOne(targetEntity="BabyfootGame", inversedBy="games")
+     * @ORM\ManyToOne(targetEntity="BabyfootGame", inversedBy="goals")
      * @ORM\JoinColumn(name="game_id", referencedColumnName="id")
      */
-    private $game;
+    protected $game;
 
     /**
      * Goal constructor.
@@ -118,16 +119,5 @@ class BabyfootGoal
     public function getGame()
     {
         return $this->game;
-    }
-
-    public function expose()
-    {
-        $var = get_object_vars($this);
-        foreach ($var as &$value) {
-            if (is_object($value) && method_exists($value, 'expose')) {
-                $value = $value->expose();
-            }
-        }
-        return $var;
     }
 }

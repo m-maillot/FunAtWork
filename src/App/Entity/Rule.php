@@ -57,15 +57,4 @@ class Rule
     {
         return $this->lastUpdateDate;
     }
-
-    public function expose()
-    {
-        $var = get_object_vars($this);
-        foreach ($var as &$value) {
-            if (is_object($value) && method_exists($value, 'expose')) {
-                $value = $value->expose();
-            }
-        }
-        return $var;
-    }
 }

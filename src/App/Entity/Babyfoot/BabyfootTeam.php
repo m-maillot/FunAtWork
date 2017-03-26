@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\Babyfoot;
 
+use App\Entity\Player;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -17,21 +18,21 @@ class BabyfootTeam
      * @ORM\GeneratedValue
      * @var int
      */
-    private $id;
+    protected $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Player", fetch="EAGER")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Player", fetch="EAGER")
      * @ORM\JoinColumn(name="attack_player_id", referencedColumnName="id")
      * @var Player
      **/
-    private $playerAttack;
+    protected $playerAttack;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Player", fetch="EAGER")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Player", fetch="EAGER")
      * @ORM\JoinColumn(name="defense_player_id", referencedColumnName="id")
      * @var Player
      **/
-    private $playerDefense;
+    protected $playerDefense;
 
     /**
      * Team constructor.
@@ -68,16 +69,5 @@ class BabyfootTeam
     public function getPlayerDefense()
     {
         return $this->playerDefense;
-    }
-
-    public function expose()
-    {
-        $var = get_object_vars($this);
-        foreach ($var as &$value) {
-            if (is_object($value) && method_exists($value, 'expose')) {
-                $value = $value->expose();
-            }
-        }
-        return $var;
     }
 }
