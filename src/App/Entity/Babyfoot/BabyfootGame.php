@@ -45,8 +45,8 @@ class BabyfootGame
     protected $blueTeam;
 
     /**
-     * @ORM\OneToMany(targetEntity="BabyfootGoal", mappedBy="game")
-     * @var BabyfootGoal[]
+     * @ORM\OneToMany(targetEntity="BabyfootGoal", mappedBy="game", fetch="EAGER")
+     * @var ArrayCollection
      */
     protected $goals;
 
@@ -124,7 +124,7 @@ class BabyfootGame
     }
 
     /**
-     * @return BabyfootGoal[]
+     * @return ArrayCollection
      */
     public function getGoals()
     {

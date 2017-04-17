@@ -25,16 +25,19 @@ class BabyfootGoalArrayMapper
     }
 
     /**
-     * @param $goals BabyfootGoal[]
+     * @param $goals []
      * @return array
      */
     public static function transforms($goals)
     {
-        return array_map(
-            function ($goal) {
-                return self::transform($goal);
-            },
-            $goals
-        );
+        if ($goals) {
+            return array_map(
+                function ($goal) {
+                    return self::transform($goal);
+                },
+                $goals
+            );
+        }
+        return [];
     }
 }
