@@ -4,9 +4,9 @@ composer.phar
 composer.lock
 
 # SlimPHP
-logs/
+logs/*.log
 !/logs/README.md
-database/
+database/db.sqlite
 !/database/README.md
 cache
 

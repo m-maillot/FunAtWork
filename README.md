@@ -27,6 +27,12 @@ $ curl -s http://getcomposer.org/installer | php
 $ php composer.phar install
 ```
 
+### Create database (SQLite)
+
+```
+$ php vendor/bin/doctrine orm:schema-tool:create
+```
+
 ### Run server
 
 ```
@@ -35,7 +41,7 @@ php -S localhost:8080 -t public public/index.php
 
 ## Credits
 
-Developped by the me.
+Developped by a lezard.
 
 ## License
 
