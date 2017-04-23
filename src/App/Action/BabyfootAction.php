@@ -113,6 +113,7 @@ class BabyfootAction
                 if ($game->getStatus() === BabyfootGame::GAME_STARTED) {
                     $game->setStatus($params->isCanceled() ? BabyfootGame::GAME_CANCELED : BabyfootGame::GAME_OVER);
                     $game = $this->gameResource->createOrUpdate($game);
+                    $this->populateGoalsHack($game);
                     return $response->withJSON(BabyfootGameArrayMapper::transform($game));
                 }
                 return $response->withStatus(400, 'Game is already over.');
