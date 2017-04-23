@@ -10,6 +10,9 @@ database/db.sqlite
 !/database/README.md
 cache
 
+public/avatars/*.jpg
+public/avatars/*.png
+
 # IntelliJ
 *.iml
 .idea/
