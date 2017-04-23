@@ -18,7 +18,7 @@ class PlayerResource extends AbstractResource
      */
     public function select()
     {
-        return $this->entityManager->getRepository('App\Entity\Player')->findAll();
+        return $this->entityManager->getRepository('App\Entity\Player')->findBy(array(), array('name' => 'ASC'));
     }
 
     /**

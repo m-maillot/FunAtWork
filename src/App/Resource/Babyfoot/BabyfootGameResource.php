@@ -16,7 +16,7 @@ class BabyfootGameResource extends AbstractResource
      */
     public function select()
     {
-        return $this->entityManager->getRepository('App\Entity\Babyfoot\BabyfootGame')->findAll();
+        return $this->entityManager->getRepository('App\Entity\Babyfoot\BabyfootGame')->findBy(array(), array('startedDate' => 'DESC'));
     }
 
     /**
