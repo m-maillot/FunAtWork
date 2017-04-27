@@ -44,10 +44,6 @@ class BabyfootAction
     public function fetchGames(ServerRequestInterface $request, Response $response, $args)
     {
         $games = $this->gameResource->select();
-        // Hack to retrieves goals
-        foreach ($games as $game) {
-            $this->populateGoalsHack($game);
-        }
         return $response->withJSON(BabyfootGameArrayMapper::transforms($games));
     }
 
@@ -56,17 +52,10 @@ class BabyfootAction
         $gameId = $args['game_id'];
         $game = $this->gameResource->selectOne($gameId);
         if ($game) {
-            $this->populateGoalsHack($game);
             return $response->withJson(BabyfootGameArrayMapper::transform($game));
         }
 
-        return $response->withStatus(400, 'Game not found.');
-    }
-
-    private function populateGoalsHack(BabyfootGame $game)
-    {
-        $goals = $this->goalResource->selectForGame($game);
-        $game->setGoals($goals);
+        return $response->withStatus(404, 'Game not found.');
     }
 
     public function startGame(ServerRequestInterface $request, Response $response, $args)
@@ -94,7 +83,6 @@ class BabyfootAction
                     // Create the game
                     $game = new BabyfootGame(0, BabyfootGame::GAME_STARTED, $blueTeam, $redTeam, new \DateTime(), new \DateTime());
                     $game = $this->gameResource->createOrUpdate($game);
-                    $this->populateGoalsHack($game);
                     return $response->withJSON(BabyfootGameArrayMapper::transform($game));
                 }
                 return $response->withStatus(400, 'Failed to create team with players ' . $bluePlayerAttack->getName() . '-' . $bluePlayerDefense->getName() . ' vs ' . $redPlayerAttack->getName() . '-' . $redPlayerDefense->getName() . '.');
@@ -113,7 +101,6 @@ class BabyfootAction
                 if ($game->getStatus() === BabyfootGame::GAME_STARTED) {
                     $game->setStatus($params->isCanceled() ? BabyfootGame::GAME_CANCELED : BabyfootGame::GAME_OVER);
                     $game = $this->gameResource->createOrUpdate($game);
-                    $this->populateGoalsHack($game);
                     return $response->withJSON(BabyfootGameArrayMapper::transform($game));
                 }
                 return $response->withStatus(400, 'Game is already over.');
@@ -135,14 +122,13 @@ class BabyfootAction
                     if ($player) {
                         if ($this->checkPlayerId($game, $params->getStrikerId())) {
                             $goal = new BabyfootGoal(0, new \DateTime(), $player, $params->getPosition(), $params->isGamelle(), $game);
-                            $goal = $this->goalResource->create($goal);
+                            $this->goalResource->create($goal);
                             $blueScore = BabyfootGameArrayMapper::computeGoals($game, $game->getBlueTeam());
                             $redScore = BabyfootGameArrayMapper::computeGoals($game, $game->getRedTeam());
-                            if ($blueScore >= 9 || $redScore >= 9) {
+                            if ($blueScore >= 10 || $redScore >= 10) {
                                 $game->setStatus(BabyfootGame::GAME_OVER);
                                 $this->gameResource->createOrUpdate($game);
                             }
-                            $this->populateGoalsHack($game);
                             return $response->withJSON(BabyfootGameArrayMapper::transform($game));
                         }
                         return $response->withStatus(400, 'Player not found in this game');

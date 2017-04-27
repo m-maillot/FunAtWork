@@ -11,6 +11,7 @@ namespace App\Entity\Babyfoot\Mapper;
 
 use App\Entity\Babyfoot\BabyfootGoal;
 use App\Entity\Mapper\PlayerArrayMapper;
+use Doctrine\ORM\PersistentCollection;
 
 class BabyfootGoalArrayMapper
 {
@@ -25,19 +26,27 @@ class BabyfootGoalArrayMapper
     }
 
     /**
-     * @param $goals []
+     * @param $goals mixed
      * @return array
      */
     public static function transforms($goals)
     {
-        if ($goals) {
-            return array_map(
-                function ($goal) {
-                    return self::transform($goal);
-                },
-                $goals
-            );
+        /**
+         * @var $goalsArray BabyfootGoal[]
+         */
+        $goalsArray = $goals;
+        if ($goals instanceof PersistentCollection) {
+            /**
+             * @var $goalsArray PersistentCollection
+             */
+            $tmp = $goals;
+            $goalsArray = $tmp->toArray();
         }
-        return [];
+        return array_map(
+            function ($goal) {
+                return self::transform($goal);
+            },
+            $goalsArray
+        );
     }
 }
