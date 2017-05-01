@@ -122,7 +122,8 @@ class BabyfootAction
                     if ($player) {
                         if ($this->checkPlayerId($game, $params->getStrikerId())) {
                             $goal = new BabyfootGoal(0, new \DateTime(), $player, $params->getPosition(), $params->isGamelle(), $game);
-                            $this->goalResource->create($goal);
+                            $goal = $this->goalResource->create($goal);
+                            $game->getGoals()->add($goal);
                             $blueScore = BabyfootGameArrayMapper::computeGoals($game, $game->getBlueTeam());
                             $redScore = BabyfootGameArrayMapper::computeGoals($game, $game->getRedTeam());
                             if ($blueScore >= 10 || $redScore >= 10) {
