@@ -124,7 +124,7 @@ class BabyfootGame
     }
 
     /**
-     * @return ArrayCollection
+     * @return ArrayCollection|BabyfootGoal[]
      */
     public function getGoals()
     {

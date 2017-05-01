@@ -4,6 +4,7 @@ namespace App\Entity\Babyfoot\Mapper;
 
 use App\Entity\Babyfoot\BabyfootGame;
 use App\Entity\Babyfoot\BabyfootTeam;
+use App\Entity\Player;
 
 /**
  * Created by IntelliJ IDEA.
@@ -43,22 +44,39 @@ class BabyfootGameArrayMapper
     }
 
     /**
+     * Compute the count goal made by the team for the game
+     *
      * @param BabyfootGame $game
      * @param BabyfootTeam $team
      * @return int
      */
     public static function computeGoals(BabyfootGame $game, BabyfootTeam $team)
     {
-        $player1 = $team->getPlayerAttack()->getId();
-        $player2 = $team->getPlayerDefense()->getId();
+        /**
+         * @var int
+         */
         $goals = 0;
         foreach ($game->getGoals() as $goal) {
-            if ($goal->getStriker()->getId() == $player1
-                || $goal->getStriker()->getId() == $player2
+            if (self::isGoalTeam($team, $goal->getStriker())
+                && !$goal->isGamelle()
             ) {
                 $goals++;
+            } else if ($goal->isGamelle()) {
+                $goals--;
             }
         }
         return $goals;
+    }
+
+    /**
+     * Detect if the goal has been made by the team
+     * @param BabyfootTeam $team
+     * @param Player $player
+     * @return bool
+     */
+    public static function isGoalTeam(BabyfootTeam $team, Player $player)
+    {
+        return $player->getId() == $team->getPlayerAttack()->getId()
+            || $player->getId() == $team->getPlayerDefense()->getId();
     }
 }
