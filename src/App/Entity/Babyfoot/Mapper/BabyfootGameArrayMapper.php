@@ -57,10 +57,10 @@ class BabyfootGameArrayMapper
          */
         $goals = 0;
         foreach ($game->getGoals() as $goal) {
-            if (self::isGoalTeam($team, $goal->getStriker())
-                && !$goal->isGamelle()
-            ) {
-                $goals++;
+            if (self::isGoalTeam($team, $goal->getStriker())) {
+                if (!$goal->isGamelle()) {
+                    $goals++;
+                }
             } else if ($goal->isGamelle()) {
                 $goals--;
             }
