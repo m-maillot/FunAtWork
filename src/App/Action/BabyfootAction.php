@@ -3,9 +3,6 @@
 namespace App\Action;
 
 use App\Action\Babyfoot\GameParametersParser;
-use App\Entity\Babyfoot\BabyfootGame;
-use App\Entity\Babyfoot\BabyfootGoal;
-use App\Entity\Babyfoot\BabyfootTeam;
 use App\Entity\Babyfoot\Mapper\BabyfootGameArrayMapper;
 use App\Resource\Babyfoot\BabyfootGameResource;
 use App\Resource\Babyfoot\BabyfootGoalResource;
@@ -62,94 +59,45 @@ class BabyfootAction
     {
         $params = $this->parameterParser->parseCreateGame($request);
 
-        if ($params->isValid()) {
-            $bluePlayerAttack = $this->playerResource->selectOne($params->getBluePlayerAttackId());
-            $bluePlayerDefense = $this->playerResource->selectOne($params->getBluePlayerDefenseId());
-            $redPlayerAttack = $this->playerResource->selectOne($params->getRedPlayerAttackId());
-            $redPlayerDefense = $this->playerResource->selectOne($params->getRedPlayerDefenseId());
-
-            if ($bluePlayerAttack && $bluePlayerDefense && $redPlayerDefense && $redPlayerAttack) {
-                // Check team is already exist, otherwise create a new one
-                $blueTeam = $this->teamResource->selectByPlayers($bluePlayerAttack, $bluePlayerDefense);
-                $redTeam = $this->teamResource->selectByPlayers($redPlayerAttack, $redPlayerDefense);
-                if (!$blueTeam) {
-                    $blueTeam = $this->teamResource->create(new BabyfootTeam(0, $bluePlayerAttack, $bluePlayerDefense));
-                }
-                if (!$redTeam) {
-                    $redTeam = $this->teamResource->create(new BabyfootTeam(0, $redPlayerAttack, $redPlayerDefense));
-                }
-
-                if ($blueTeam && $redTeam) {
-                    // Create the game
-                    $game = new BabyfootGame(0, BabyfootGame::GAME_STARTED, $blueTeam, $redTeam, new \DateTime(), new \DateTime());
-                    $game = $this->gameResource->createOrUpdate($game);
-                    return $response->withJSON(BabyfootGameArrayMapper::transform($game));
-                }
-                return $response->withStatus(400, 'Failed to create team with players ' . $bluePlayerAttack->getName() . '-' . $bluePlayerDefense->getName() . ' vs ' . $redPlayerAttack->getName() . '-' . $redPlayerDefense->getName() . '.');
-            }
-            return $response->withStatus(400, 'Player not found.');
+        if (!$params->isValid()) {
+            return $response->withStatus(400, 'Missing arguments. Arguments required: Blue players, Red players identifier.');
         }
-        return $response->withStatus(400, 'Missing arguments. Arguments required: Blue players, Red players identifier.');
+
+        $useCase = new \StartNewGame($this->teamResource, $this->gameResource, $this->playerResource);
+        $useCaseResponse = $useCase->execute($params->getBluePlayerAttackId(), $params->getBluePlayerDefenseId(),
+            $params->getRedPlayerAttackId(), $params->getBluePlayerDefenseId());
+        if ($useCaseResponse->isSuccess()) {
+            return $response->withJSON(BabyfootGameArrayMapper::transform($useCaseResponse->getData()));
+        }
+        return $response->withStatus($useCaseResponse->getState(), $useCaseResponse->getMessage());
     }
 
     public function gameOver(ServerRequestInterface $request, Response $response, $args)
     {
         $params = $this->parameterParser->parseGameOver($request);
-        if ($params->isValid()) {
-            $game = $this->gameResource->selectOne($params->getGameId());
-            if ($game) {
-                if ($game->getStatus() === BabyfootGame::GAME_STARTED) {
-                    $game->setStatus($params->isCanceled() ? BabyfootGame::GAME_CANCELED : BabyfootGame::GAME_OVER);
-                    $game = $this->gameResource->createOrUpdate($game);
-                    return $response->withJSON(BabyfootGameArrayMapper::transform($game));
-                }
-                return $response->withStatus(400, 'Game is already over.');
-            }
-            return $response->withStatus(404, 'Game not found.');
+        if (!$params->isValid()) {
+            return $response->withStatus(400, 'Missing arguments. Arguments required: Game identifier.');
         }
-        return $response->withStatus(400, 'Missing arguments. Arguments required: Game identifier.');
+        $useCase = new \GameOver($this->gameResource);
+        $useCaseResp = $useCase->execute($params->getGameId(), $params->isCanceled());
+        if ($useCaseResp->isSuccess()) {
+            return $response->withJson(BabyfootGameResource::transform($useCaseResp->getData()));
+        }
+        return $response->withStatus($useCaseResp->getState(), $useCaseResp->getMessage());
     }
 
     public function addGoal(ServerRequestInterface $request, Response $response, $args)
     {
         $params = $this->parameterParser->parseAddGoal($request);
-
         if ($params->isValid()) {
-            $game = $this->gameResource->selectOne($params->getGameId());
-            if ($game) {
-                if ($game->getStatus() === BabyfootGame::GAME_STARTED) {
-                    $player = $this->playerResource->selectOne($params->getStrikerId());
-                    if ($player) {
-                        if ($this->checkPlayerId($game, $params->getStrikerId())) {
-                            $goal = new BabyfootGoal(0, new \DateTime(), $player, $params->getPosition(), $params->isGamelle(), $game);
-                            $goal = $this->goalResource->create($goal);
-                            $game->getGoals()->add($goal);
-                            $blueScore = BabyfootGameArrayMapper::computeGoals($game, $game->getBlueTeam());
-                            $redScore = BabyfootGameArrayMapper::computeGoals($game, $game->getRedTeam());
-                            if ($blueScore >= 10 || $redScore >= 10) {
-                                $game->setStatus(BabyfootGame::GAME_OVER);
-                                $this->gameResource->createOrUpdate($game);
-                            }
-                            return $response->withJSON(BabyfootGameArrayMapper::transform($game));
-                        }
-                        return $response->withStatus(400, 'Player not found in this game');
-                    }
-                    return $response->withStatus(400, 'Player not found');
-                }
-                return $response->withStatus(400, 'Game is over.');
-            }
-            return $response->withStatus(400, 'Game not found.');
+            return $response->withStatus(400, 'Missing arguments. Arguments required: Game identifier, Player identifier (striker) and position.');
         }
 
-        return $response->withStatus(400, 'Missing arguments. Arguments required: Game identifier, Player identifier (striker) and position.');
-    }
-
-    private
-    function checkPlayerId(BabyfootGame $game, $strikerId)
-    {
-        return $game->getRedTeam()->getPlayerAttack()->getId() == $strikerId
-            || $game->getRedTeam()->getPlayerDefense()->getId() == $strikerId
-            || $game->getBlueTeam()->getPlayerAttack()->getId() == $strikerId
-            || $game->getBlueTeam()->getPlayerDefense()->getId() == $strikerId;
+        $useCase = new \AddGoal($this->goalResource, $this->gameResource, $this->playerResource);
+        $responseUseCase = $useCase->execute($params->getGameId(), $params->getStrikerId(), $params->getPosition(), $params->isGamelle());
+        if ($responseUseCase->isSuccess()) {
+            return $response->withJson(BabyfootGameArrayMapper::transform($responseUseCase->getData()));
+        }
+        return $response->withStatus($responseUseCase->getState(), $responseUseCase->getMessage());
     }
 }

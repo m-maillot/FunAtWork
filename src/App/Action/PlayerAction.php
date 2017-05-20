@@ -41,6 +41,10 @@ class PlayerAction
         return $response->withStatus(404, "Player not found");
     }
 
+    public function authentication(ServerRequestInterface $request, Response $response, $args) {
+        $
+    }
+
     public function create(ServerRequestInterface $request, Response $response, $args)
     {
         $param = $this->parameterParser->parse($request);
