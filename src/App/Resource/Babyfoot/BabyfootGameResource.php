@@ -12,11 +12,12 @@ use App\Entity\Babyfoot\BabyfootGame;
 class BabyfootGameResource extends AbstractResource
 {
     /**
+     * @param int $limit
      * @return BabyfootGame[]
      */
-    public function select()
+    public function select($limit = 0)
     {
-        return $this->entityManager->getRepository('App\Entity\Babyfoot\BabyfootGame')->findBy(array(), array('startedDate' => 'DESC'));
+        return $this->entityManager->getRepository('App\Entity\Babyfoot\BabyfootGame')->findBy(array(), array('startedDate' => 'DESC'), $limit);
     }
 
     /**

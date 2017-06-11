@@ -40,7 +40,11 @@ class BabyfootAction
 
     public function fetchGames(ServerRequestInterface $request, Response $response, $args)
     {
-        $games = $this->gameResource->select();
+        $limit = 0;
+        if (array_key_exists("limit", $args)) {
+            $limit = $args['limit'];
+        }
+        $games = $this->gameResource->select($limit);
         return $response->withJSON(BabyfootGameArrayMapper::transforms($games));
     }
 
