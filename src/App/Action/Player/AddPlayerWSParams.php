@@ -6,7 +6,7 @@ namespace App\Action\Player;
  * Class PlayerWSParams
  * @package App\Action\Player
  */
-class PlayerWSParams
+class AddPlayerWSParams
 {
 
     /**

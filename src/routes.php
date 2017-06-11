@@ -11,8 +11,9 @@ $app->get('/', function ($request, $response, $args) {
 
 $app->group('/api/v1', function () {
 
+    $this->map(['POST'], '/signin', "App\Action\PlayerAction:signin");
     // Player API
-    $this->map(['POST'], '/players', 'App\Action\PlayerAction:create');
+    // $this->map(['POST'], '/players', 'App\Action\PlayerAction:create');
     $this->map(['GET'], '/players', 'App\Action\PlayerAction:fetch');
     $this->map(['GET'], '/players/{player_id}', 'App\Action\PlayerAction:fetchOne');
 

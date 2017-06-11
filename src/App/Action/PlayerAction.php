@@ -4,7 +4,6 @@ namespace App\Action;
 
 use App\Action\Player\PlayerParametersParser;
 use App\Entity\Mapper\PlayerArrayMapper;
-use App\Entity\Player;
 use App\Resource\PlayerResource;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Http\Response;
@@ -41,10 +40,8 @@ class PlayerAction
         return $response->withStatus(404, "Player not found");
     }
 
-    public function authentication(ServerRequestInterface $request, Response $response, $args) {
-        $
-    }
-
+    /*
+    // Create player API is disabled until add admin access
     public function create(ServerRequestInterface $request, Response $response, $args)
     {
         $param = $this->parameterParser->parse($request);
@@ -57,5 +54,30 @@ class PlayerAction
             }
         }
         return $response->withStatus(400, 'Missing arguments. Arguments required: name and avatar.');
+    }
+    */
+
+    public function signin(ServerRequestInterface $request, Response $response, $args)
+    {
+
+        $params = $this->parameterParser->parseSignin($request);
+        if (!$params->isValid()) {
+            $response->withStatus(400, "Missing login or password");
+        }
+
+        $player = $this->playerResource->selectOneByLoginPassword($params->getLogin(), $params->getPassword());
+
+        if (!$player) {
+            $response->withStatus(404, "Player not found");
+        }
+        $generatedToken = bin2hex(openssl_random_pseudo_bytes(8));
+        $tokenExpiration = new \DateTime();
+        $interval = new \DateInterval('P1M');
+        $tokenExpiration->add($interval);
+        $player->setToken($generatedToken);
+        $player->setTokenExpire($tokenExpiration);
+
+        $this->playerResource->update($player);
+        return $response->withJson(array('login' => $player->getLogin(), 'token' => $player->getToken(), 'expire_at' => $player->getTokenExpire()->getTimestamp()));
     }
 }
