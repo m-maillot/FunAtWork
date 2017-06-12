@@ -88,7 +88,7 @@ class BabyfootAction
         $useCase = new GameOver($this->gameResource);
         $useCaseResp = $useCase->execute($params->getGameId(), $params->isCanceled());
         if ($useCaseResp->isSuccess()) {
-            return $response->withJson(BabyfootGameResource::transform($useCaseResp->getData()));
+            return $response->withJson(BabyfootGameArrayMapper::transform($useCaseResp->getData()));
         }
         return $response->withStatus($useCaseResp->getState(), $useCaseResp->getMessage());
     }

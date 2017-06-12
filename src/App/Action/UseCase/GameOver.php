@@ -45,7 +45,7 @@ class GameOver
         }
         $game->setStatus($shouldBeCancelled ? BabyfootGame::GAME_CANCELED : BabyfootGame::GAME_OVER);
         $game = $this->gameResource->createOrUpdate($game);
-        return new Response(200, "", BabyfootGameArrayMapper::transform($game));
+        return new Response(200, "", $game);
 
     }
 }
