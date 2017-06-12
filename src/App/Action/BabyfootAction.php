@@ -40,7 +40,7 @@ class BabyfootAction
 
     public function fetchGames(ServerRequestInterface $request, Response $response, $args)
     {
-        $limit = 0;
+        $limit = null;
         if (array_key_exists("limit", $args)) {
             $limit = $args['limit'];
         }

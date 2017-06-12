@@ -15,7 +15,7 @@ class BabyfootGameResource extends AbstractResource
      * @param int $limit
      * @return BabyfootGame[]
      */
-    public function select($limit = 0)
+    public function select($limit = null)
     {
         return $this->entityManager->getRepository('App\Entity\Babyfoot\BabyfootGame')->findBy(array(), array('startedDate' => 'DESC'), $limit);
     }
