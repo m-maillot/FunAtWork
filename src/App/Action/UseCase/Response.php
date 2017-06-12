@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Action\UseCase;
+
 /**
  * Created by IntelliJ IDEA.
  * User: mmaillot

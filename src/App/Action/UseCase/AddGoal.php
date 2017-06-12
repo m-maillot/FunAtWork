@@ -1,4 +1,7 @@
 <?php
+
+namespace App\Action\UseCase;
+
 use App\Entity\Babyfoot\BabyfootGame;
 use App\Entity\Babyfoot\BabyfootGoal;
 use App\Entity\Babyfoot\Mapper\BabyfootGameArrayMapper;
@@ -58,10 +61,10 @@ class AddGoal implements UseCase
         if (!$game) {
             return new Response(400, 'Game not found.');
         }
-        if ($game->getStatus() === BabyfootGame::GAME_STARTED) {
+        if ($game->getStatus() !== BabyfootGame::GAME_STARTED) {
             return new Response(400, 'Game is over.');
         }
-        if ($this->checkPlayerId($game, $strikerId)) {
+        if (!$this->checkPlayerId($game, $strikerId)) {
             return new Response(400, 'Player not found in this game');
         }
         $striker = $this->playerResource->selectOne($strikerId);

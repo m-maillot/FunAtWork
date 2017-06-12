@@ -19,25 +19,25 @@ class GameParametersParser
      */
     public function parseFetchOneGame(ServerRequestInterface $request)
     {
-        $gameId = $request->getParsedBody()['game'];
+        $gameId = (int) $request->getParsedBody()['game'];
         return $gameId;
     }
 
     public function parseCreateGame(ServerRequestInterface $request)
     {
-        $bluePlayerAttackId = $request->getParsedBody()['redPlayerAttackId'];
-        $bluePlayerDefenseId = $request->getParsedBody()['redPlayerDefenseId'];
-        $redPlayerAttackId = $request->getParsedBody()['bluePlayerAttackId'];
-        $redPlayerDefenseId = $request->getParsedBody()['bluePlayerDefenseId'];
+        $bluePlayerAttackId = (int) $request->getParsedBody()['redPlayerAttackId'];
+        $bluePlayerDefenseId = (int) $request->getParsedBody()['redPlayerDefenseId'];
+        $redPlayerAttackId = (int) $request->getParsedBody()['bluePlayerAttackId'];
+        $redPlayerDefenseId = (int) $request->getParsedBody()['bluePlayerDefenseId'];
         return new BabyfootCreateGameWSParams($redPlayerAttackId, $redPlayerDefenseId, $bluePlayerAttackId, $bluePlayerDefenseId);
     }
 
     public function parseAddGoal(ServerRequestInterface $request)
     {
-        $strikerId = $request->getParsedBody()['striker'];
-        $position = $request->getParsedBody()['position'];
+        $strikerId = (int) $request->getParsedBody()['striker'];
+        $position = (int) $request->getParsedBody()['position'];
         $gamelle = $request->getParsedBody()['gamelle'] === '1';
-        $gameId = $request->getParsedBody()['game'];
+        $gameId = (int) $request->getParsedBody()['game'];
         return new BabyfootAddGoalWSParams($strikerId, $position, $gamelle, $gameId);
     }
 

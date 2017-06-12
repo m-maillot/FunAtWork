@@ -1,4 +1,7 @@
 <?php
+
+namespace App\Action\UseCase;
+
 use App\Entity\Babyfoot\BabyfootGame;
 use App\Entity\Babyfoot\Mapper\BabyfootGameArrayMapper;
 use App\Resource\Babyfoot\BabyfootGameResource;

@@ -1,4 +1,7 @@
 <?php
+
+namespace App\Action\UseCase;
+
 use App\Entity\Babyfoot\BabyfootGame;
 use App\Entity\Babyfoot\BabyfootTeam;
 use App\Entity\Player;
@@ -70,7 +73,7 @@ class StartNewGame implements UseCase
 
 
         // Check team is already exist, otherwise create a new one
-        $blueTeam = $this->createTeamIfNoExist($blueAttack, $blueAttack);
+        $blueTeam = $this->createTeamIfNoExist($blueAttack, $blueDefense);
         $redTeam = $this->createTeamIfNoExist($redAttack, $redDefense);
 
         if ($blueTeam && $redTeam) {
