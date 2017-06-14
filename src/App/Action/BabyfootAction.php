@@ -4,6 +4,7 @@ namespace App\Action;
 
 use App\Action\Babyfoot\GameParametersParser;
 use App\Action\UseCase\AddGoal;
+use App\Action\UseCase\AddGoalConnected;
 use App\Action\UseCase\GameOver;
 use App\Action\UseCase\StartNewGame;
 use App\Entity\Babyfoot\Mapper\BabyfootGameArrayMapper;
@@ -99,6 +100,21 @@ class BabyfootAction
 
         $useCase = new AddGoal($this->goalResource, $this->gameResource, $this->playerResource);
         $responseUseCase = $useCase->execute($params->getGameId(), $params->getStrikerId(), $params->getPosition(), $params->isGamelle());
+        if ($responseUseCase->isSuccess()) {
+            return $response->withJson(BabyfootGameArrayMapper::transform($responseUseCase->getData()));
+        }
+        return $response->withStatus($responseUseCase->getState(), $responseUseCase->getMessage());
+    }
+
+    public function addGoalConnected(ServerRequestInterface $request, Response $response, $args)
+    {
+        $params = $this->parameterParser->parseAddGoalConnected($request);
+        if (!$params->isValid()) {
+            return $response->withStatus(400, 'Missing arguments. Arguments required: Game identifier, Player identifier (striker) and position.');
+        }
+
+        $useCase = new AddGoalConnected($this->goalResource, $this->gameResource, $this->playerResource);
+        $responseUseCase = $useCase->execute($params->isRedTeam(), $params->isAttack(), $params->isGamelle());
         if ($responseUseCase->isSuccess()) {
             return $response->withJson(BabyfootGameArrayMapper::transform($responseUseCase->getData()));
         }

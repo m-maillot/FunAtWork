@@ -36,6 +36,20 @@ class BabyfootGameResource extends AbstractResource
     }
 
     /**
+     * @return BabyfootGame|null
+     */
+    public function selectCurrent()
+    {
+        /**
+         * @var $game BabyfootGame|null
+         */
+        $game = $this->entityManager->getRepository('App\Entity\Babyfoot\BabyfootGame')->findOneBy(
+            array('status' => '1'), array('startedDate' => 'DESC')
+        );
+        return $game;
+    }
+
+    /**
      * @param BabyfootGame $game
      * @return BabyfootGame
      */

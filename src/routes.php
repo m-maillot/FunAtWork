@@ -23,5 +23,6 @@ $app->group('/api/v1', function () {
         $this->map(['GET'], '/games/{game_id}', 'App\Action\BabyfootAction:fetchOneGame');
         $this->map(['POST'], '/stop', 'App\Action\BabyfootAction:gameOver');
         $this->map(['POST'], '/goal', 'App\Action\BabyfootAction:addGoal');
+        $this->map(['POST'], '/goalConnected', 'App\Action\BabyfootAction:addGoalConnected');
     });
 });
