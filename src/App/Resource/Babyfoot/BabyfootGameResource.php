@@ -13,11 +13,12 @@ class BabyfootGameResource extends AbstractResource
 {
     /**
      * @param int $limit
+     * @param bool $desc
      * @return BabyfootGame[]
      */
-    public function select($limit = null)
+    public function select($limit = null, $desc = true)
     {
-        return $this->entityManager->getRepository('App\Entity\Babyfoot\BabyfootGame')->findBy(array(), array('startedDate' => 'DESC'), $limit);
+        return $this->entityManager->getRepository('App\Entity\Babyfoot\BabyfootGame')->findBy(array(), array('startedDate' => ($desc) ? 'DESC' : 'ASC'), $limit);
     }
 
     /**
