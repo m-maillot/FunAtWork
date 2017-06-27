@@ -34,7 +34,7 @@ class TeamStats
     /**
      * @var int
      */
-    public $teamGoalAvg = 0;
+    public $goalAverage = 0;
     /**
      * @var int
      */

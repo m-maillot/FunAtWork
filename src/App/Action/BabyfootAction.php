@@ -4,8 +4,10 @@ namespace App\Action;
 
 use App\Action\Babyfoot\GameParametersParser;
 use App\Action\UseCase\AddGoal;
+use App\Action\UseCase\ComputePlayerStats;
 use App\Action\UseCase\ComputeTeamStats;
 use App\Action\UseCase\GameOver;
+use App\Action\UseCase\Model\PlayerStatsMapper;
 use App\Action\UseCase\Model\TeamStatsMapper;
 use App\Action\UseCase\StartNewGame;
 use App\Entity\Babyfoot\Mapper\BabyfootGameArrayMapper;
@@ -109,7 +111,7 @@ class BabyfootAction
 
     public function computeTeamStats(ServerRequestInterface $request, Response $response, $args)
     {
-        $useCase = new ComputeTeamStats($this->goalResource, $this->gameResource, $this->playerResource);
+        $useCase = new ComputeTeamStats($this->gameResource);
         $responseUseCase = $useCase->execute();
         if ($responseUseCase->isSuccess()) {
             return $response->withJson(TeamStatsMapper::transform($responseUseCase->getData()));
@@ -118,6 +120,10 @@ class BabyfootAction
 
     public function computePlayerStats(ServerRequestInterface $request, Response $response, $args)
     {
-
+        $useCase = new ComputePlayerStats($this->gameResource);
+        $responseUseCase = $useCase->execute();
+        if ($responseUseCase->isSuccess()) {
+            return $response->withJson(PlayerStatsMapper::transform($responseUseCase->getData()));
+        }
     }
 }

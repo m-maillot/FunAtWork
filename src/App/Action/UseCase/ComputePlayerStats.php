@@ -2,7 +2,15 @@
 
 namespace App\Action\UseCase;
 
+use App\Action\UseCase\Model\PlayerStats;
+use App\Action\UseCase\Model\TeamStats;
+use App\Entity\Babyfoot\BabyfootGame;
+use App\Entity\Babyfoot\BabyfootTeam;
+use App\Entity\Babyfoot\Mapper\BabyfootGameArrayMapper;
+use App\Entity\Player;
 use App\Resource\Babyfoot\BabyfootGameResource;
+use App\Resource\Babyfoot\BabyfootGoalResource;
+use App\Resource\PlayerResource;
 
 /**
  * Created by IntelliJ IDEA.
@@ -10,7 +18,7 @@ use App\Resource\Babyfoot\BabyfootGameResource;
  * Date: 5/6/17
  * Time: 9:15 AM
  */
-class ComputeTeamStats implements UseCase
+class ComputePlayerStats implements UseCase
 {
 
     /**
@@ -37,7 +45,7 @@ class ComputeTeamStats implements UseCase
     {
         $games = $this->gameResource->select(null, false);
         $this->computeStats->compute($games);
-        return new Response(200, "", $this->computeStats->getTeamStats());
+        return new Response(200, "", $this->computeStats->getPlayerStats());
     }
 
 }

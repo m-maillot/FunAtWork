@@ -19,9 +19,7 @@ class TeamStatsMapper
          * @var $value TeamStats
          */
         foreach ($teamStats as $key => $value) {
-            if ($value->gamePlayed > 5) {
-                array_push($data, self::transformStat($value));
-            }
+            array_push($data, self::transformStat($value));
         }
         return $data;
     }
@@ -36,7 +34,7 @@ class TeamStatsMapper
             'gamePlayed' => $teamStats->gamePlayed,
             'victory' => $teamStats->victory,
             'loose' => $teamStats->loose,
-            'goalAvg' => $teamStats->teamGoalAvg
+            'goalAverage' => $teamStats->goalAverage
         ];
     }
 }

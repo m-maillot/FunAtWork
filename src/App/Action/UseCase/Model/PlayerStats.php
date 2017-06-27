@@ -45,7 +45,7 @@ class PlayerStats
     /**
      * @var int goal average by match (for each game, with substitute conceded goals
      */
-    public $teamGoalaverage = 0;
+    public $goalAverage = 0;
     /**
      * @var int count of balls played
      */
