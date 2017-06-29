@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Action\UseCase\Model;
+use App\Entity\Mapper\PlayerArrayMapper;
 
 /**
  * Created by IntelliJ IDEA.
@@ -25,14 +26,12 @@ class PlayerStatsMapper
     public static function transformStat(PlayerStats $playerStats)
     {
         return [
-            'id' => $playerStats->player->getId(),
-            'avatar' => $playerStats->player->getAvatar(),
-            'name' => $playerStats->player->getName(),
+            'player' => PlayerArrayMapper::transform($playerStats->player),
             'eloRanking' => $playerStats->eloRanking,
             'gamePlayed' => $playerStats->gamePlayed,
             'victory' => $playerStats->victory,
             'loose' => $playerStats->loose,
-            'goalAverage' => $playerStats->teamGoalaverage
+            'goalAverage' => $playerStats->goalAverage
         ];
     }
 }
