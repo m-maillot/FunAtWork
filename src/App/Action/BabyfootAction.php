@@ -6,6 +6,7 @@ use App\Action\Babyfoot\GameParametersParser;
 use App\Action\UseCase\AddGoal;
 use App\Action\UseCase\ComputePlayerStats;
 use App\Action\UseCase\ComputeTeamStats;
+use App\Action\UseCase\ComputeUniquePlayerStats;
 use App\Action\UseCase\GameOver;
 use App\Action\UseCase\Model\PlayerStatsMapper;
 use App\Action\UseCase\Model\TeamStatsMapper;
@@ -124,6 +125,15 @@ class BabyfootAction
         $responseUseCase = $useCase->execute();
         if ($responseUseCase->isSuccess()) {
             return $response->withJson(PlayerStatsMapper::transform($responseUseCase->getData()));
+        }
+    }
+
+    public function computeUniquePlayerStats(ServerRequestInterface $request, Response $response, $args)
+    {
+        $useCase = new ComputeUniquePlayerStats($this->gameResource, $args['player_id']);
+        $responseUseCase = $useCase->execute();
+        if ($responseUseCase->isSuccess()) {
+            return $response->withJson(PlayerStatsMapper::transformStatWithHistory($responseUseCase->getData()));
         }
     }
 }

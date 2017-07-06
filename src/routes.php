@@ -25,5 +25,6 @@ $app->group('/api/v1', function () {
         $this->map(['POST'], '/goal', 'App\Action\BabyfootAction:addGoal');
         $this->map(['GET'], '/stats/team', 'App\Action\BabyfootAction:computeTeamStats');
         $this->map(['GET'], '/stats/player', 'App\Action\BabyfootAction:computePlayerStats');
+        $this->map(['GET'], '/stats/player/{player_id}', 'App\Action\BabyfootAction:computeUniquePlayerStats');
     });
 });

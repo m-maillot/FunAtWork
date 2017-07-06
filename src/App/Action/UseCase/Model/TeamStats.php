@@ -66,6 +66,6 @@ class TeamStats
     /**
      * @var int
      */
-    public $eloRanking = 0;
+    public $eloRanking = 1500;
 
 }

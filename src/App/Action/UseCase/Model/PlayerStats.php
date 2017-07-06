@@ -47,6 +47,10 @@ class PlayerStats
      */
     public $goalAverage = 0;
     /**
+     * @var int goal average by match (for each game, with substitute conceded goals
+     */
+    public $goals = 0;
+    /**
      * @var int count of balls played
      */
     public $ballsPlayed = 0;
@@ -63,7 +67,33 @@ class PlayerStats
     /**
      * @var int
      */
-    public $eloRanking = 1500;
+    private $eloRanking = 1500;
+
+    /**
+     * @var MatchHistory[]
+     */
+    public $matchsHistory = array();
+
+    /**
+     * @param $incValue int
+     */
+    public function incEloRanking($incValue)
+    {
+        $this->eloRanking += $incValue;
+    }
+
+    /**
+     * @return int
+     */
+    public function getEloRanking()
+    {
+        if ($this->player->getId() === 17) {
+            // Guest, so set elo to 1000
+            return 1500;
+        }
+        return $this->eloRanking;
+    }
+
     /**
      * @var array with W when player wins game and L when player loose game
      */

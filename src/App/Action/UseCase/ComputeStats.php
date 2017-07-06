@@ -9,6 +9,7 @@
 namespace App\Action\UseCase;
 
 
+use App\Action\UseCase\Model\MatchHistory;
 use App\Action\UseCase\Model\PlayerStats;
 use App\Action\UseCase\Model\TeamStats;
 use App\Entity\Babyfoot\BabyfootGame;
@@ -25,7 +26,9 @@ class ComputeStats
     const BLUE_DEFENSE = "blueDefense";
 
     private $teamsStats = array();
+    private $teamsStatsNotOrdered = array();
     private $playersStats = array();
+    private $playersStatsNotOrdered = array();
 
     /**
      * @param $games BabyfootGame[]
@@ -34,7 +37,7 @@ class ComputeStats
     public function compute($games)
     {
         foreach ($games as $game) {
-            if ($game->getStatus() == BabyfootGame::GAME_OVER && $this->isValidGame($game)) {
+            if ($game->getStatus() === BabyfootGame::GAME_OVER && $this->isValidGame($game)) {
                 $redTeam = $this->initTeamStats($game->getRedTeam());
                 $blueTeam = $this->initTeamStats($game->getBlueTeam());
                 $redAttack = $this->initPlayerStats($game->getRedTeam()->getPlayerAttack());
@@ -50,10 +53,12 @@ class ComputeStats
         }
 
         usort($this->teamsStats, function ($a, $b) {
-            return $b->eloRanking - $a->eloRanking;
-        });
-        usort($this->playersStats, function ($a, $b) {
-            return $b->eloRanking - $a->eloRanking;
+
+            /**
+             * @var $a TeamStats
+             * @var $b TeamStats
+             */
+            return $b->eloRanking * 100 - $a->eloRanking * 100;
         });
 
         return true;
@@ -67,6 +72,11 @@ class ComputeStats
     public function getPlayerStats()
     {
         return $this->playersStats;
+    }
+
+    public function getPlayerStatsById($playerId)
+    {
+        return $this->playersStats[$playerId];
     }
 
     private function isValidGame(BabyfootGame $game)
@@ -89,6 +99,7 @@ class ComputeStats
         $playerStats = new PlayerStats();
         $playerStats->player = $player;
         $this->playersStats[$playerId] = $playerStats;
+        $this->playersStatsNotOrdered[$playerId] = $playerStats;
         return $playerStats;
     }
 
@@ -107,6 +118,7 @@ class ComputeStats
         $teamStats->player1 = $team->getPlayerAttack();
         $teamStats->player2 = $team->getPlayerDefense();
         $this->teamsStats[$uniqueId] = $teamStats;
+        $this->teamsStatsNotOrdered[$uniqueId] = $teamStats;
         return $teamStats;
     }
 
@@ -188,13 +200,19 @@ class ComputeStats
 
         $players[ComputeStats::RED_ATTACK]->goalAverage += $redGoal;
         $players[ComputeStats::RED_ATTACK]->goalAverage -= $blueGoal;
+
+        $players[ComputeStats::RED_ATTACK]->goals += $this->getGoalsForUser($game, $players[ComputeStats::RED_ATTACK]);
+
         $players[ComputeStats::RED_DEFENSE]->goalAverage += $redGoal;
         $players[ComputeStats::RED_DEFENSE]->goalAverage -= $blueGoal;
+        $players[ComputeStats::RED_DEFENSE]->goals += $this->getGoalsForUser($game, $players[ComputeStats::RED_DEFENSE]);
 
         $players[ComputeStats::BLUE_ATTACK]->goalAverage -= $redGoal;
         $players[ComputeStats::BLUE_ATTACK]->goalAverage += $blueGoal;
+        $players[ComputeStats::BLUE_ATTACK]->goals += $this->getGoalsForUser($game, $players[ComputeStats::BLUE_ATTACK]);
         $players[ComputeStats::BLUE_DEFENSE]->goalAverage -= $redGoal;
         $players[ComputeStats::BLUE_DEFENSE]->goalAverage += $blueGoal;
+        $players[ComputeStats::BLUE_DEFENSE]->goals += $this->getGoalsForUser($game, $players[ComputeStats::BLUE_DEFENSE]);
 
         $redTeam->goalAverage += $redGoal;
         $redTeam->goalAverage -= $blueGoal;
@@ -202,11 +220,23 @@ class ComputeStats
         $blueTeam->goalAverage += $blueGoal;
     }
 
+    private function getGoalsForUser(BabyfootGame $game, PlayerStats $playerStats) {
+        $goals = 0;
+        foreach ($game->getGoals() as $goal) {
+            if ($goal->getStriker()->getId() === $playerStats->player->getId()) {
+                $goals++;
+            }
+        }
+        return $goals;
+    }
+
     private function setStatsEloRanking(BabyfootGame $game, TeamStats $redTeam, TeamStats $blueTeam,
                                         PlayerStats $redPlayerAttack, PlayerStats $redPlayerDefense,
                                         PlayerStats $bluePlayerAttack, PlayerStats $bluePlayerDefense)
     {
-        $redWinner = BabyfootGameArrayMapper::computeGoals($game, $game->getRedTeam()) > BabyfootGameArrayMapper::computeGoals($game, $game->getBlueTeam());
+        $redGoals = BabyfootGameArrayMapper::computeGoals($game, $game->getRedTeam());
+        $blueGoals = BabyfootGameArrayMapper::computeGoals($game, $game->getBlueTeam());
+        $redWinner = $redGoals > $blueGoals;
 
         if ($redWinner) {
             $redWins = 1;
@@ -216,27 +246,42 @@ class ComputeStats
             $blueWins = 1;
         }
 
-        $redTeam->eloRanking = ($redPlayerAttack->eloRanking + $redPlayerDefense->eloRanking) / 2;
-        $blueTeam->eloRanking = ($bluePlayerAttack->eloRanking + $bluePlayerDefense->eloRanking) / 2;
+        $redTeamAvgEloRanking = ($redPlayerAttack->getEloRanking() + $redPlayerDefense->getEloRanking()) / 2;
+        $blueTeamAvgEloRanking = ($bluePlayerAttack->getEloRanking() + $bluePlayerDefense->getEloRanking()) / 2;
 
         //Calculate Red and Blue Win Expectancy
-        $RedWe = 1 / (1 + pow(10, (($blueTeam->eloRanking - $redTeam->eloRanking) / 400)));
-        $BlueWe = 1 / (1 + pow(10, (($redTeam->eloRanking - $blueTeam->eloRanking) / 400)));
+        $RedWe = 1 / (1 + pow(10, (($blueTeamAvgEloRanking - $redTeamAvgEloRanking) / 400)));
+        $BlueWe = 1 / (1 + pow(10, (($redTeamAvgEloRanking - $blueTeamAvgEloRanking) / 400)));
 
         $KFactor = 32;
 
-        $redNewEloRanking = $redTeam->eloRanking + ($KFactor * ($redWins - $RedWe));
-        $redRanking = +($redNewEloRanking - $redTeam->eloRanking);
+        $redNewEloRanking = $redTeamAvgEloRanking + ($KFactor * ($redWins - $RedWe));
+        $redRanking = +($redNewEloRanking - $redTeamAvgEloRanking);
         $redTeam->eloRanking = $redNewEloRanking;
 
-        $redPlayerAttack->eloRanking += $redRanking;
-        $redPlayerDefense->eloRanking += $redRanking;
 
-        $blueNewEloRanking = $blueTeam->eloRanking + ($KFactor * ($blueWins - $BlueWe));
-        $blueRanking = +($blueNewEloRanking - $blueTeam->eloRanking);
+        $blueNewEloRanking = $blueTeamAvgEloRanking + ($KFactor * ($blueWins - $BlueWe));
+        $blueRanking = +($blueNewEloRanking - $blueTeamAvgEloRanking);
         $blueTeam->eloRanking = $blueNewEloRanking;
 
-        $bluePlayerAttack->eloRanking += $blueRanking;
-        $bluePlayerDefense->eloRanking += $blueRanking;
+
+        $matchHistory = new MatchHistory($redPlayerAttack->player, $redPlayerAttack->getEloRanking(),
+            $redPlayerDefense->player, $redPlayerDefense->getEloRanking(),
+            $redTeamAvgEloRanking, $redRanking,
+            $bluePlayerAttack->player, $bluePlayerAttack->getEloRanking(),
+            $bluePlayerDefense->player, $bluePlayerDefense->getEloRanking(),
+            $blueTeamAvgEloRanking, $blueRanking,
+            $blueGoals, $redGoals);
+        array_push($bluePlayerAttack->matchsHistory, $matchHistory);
+        array_push($bluePlayerDefense->matchsHistory, $matchHistory);
+        array_push($redPlayerAttack->matchsHistory, $matchHistory);
+        array_push($redPlayerDefense->matchsHistory, $matchHistory);
+
+
+        $redPlayerAttack->incEloRanking($redRanking);
+        $redPlayerDefense->incEloRanking($redRanking);
+        $bluePlayerAttack->incEloRanking($blueRanking);
+        $bluePlayerDefense->incEloRanking($blueRanking);
+
     }
 }

@@ -2,7 +2,6 @@
 
 namespace App\Action\UseCase;
 
-use App\Action\UseCase\Model\PlayerStats;
 use App\Resource\Babyfoot\BabyfootGameResource;
 
 /**
@@ -11,7 +10,7 @@ use App\Resource\Babyfoot\BabyfootGameResource;
  * Date: 5/6/17
  * Time: 9:15 AM
  */
-class ComputePlayerStats implements UseCase
+class ComputeUniquePlayerStats implements UseCase
 {
 
     /**
@@ -25,12 +24,19 @@ class ComputePlayerStats implements UseCase
     private $computeStats;
 
     /**
+     * @var int
+     */
+    private $playerId;
+
+    /**
      * AddGoal constructor.
      * @param BabyfootGameResource $gameResource
+     * @param $playerId int
      */
-    public function __construct(BabyfootGameResource $gameResource)
+    public function __construct(BabyfootGameResource $gameResource, $playerId)
     {
         $this->gameResource = $gameResource;
+        $this->playerId = $playerId;
         $this->computeStats = new ComputeStats();
     }
 
@@ -38,16 +44,7 @@ class ComputePlayerStats implements UseCase
     {
         $games = $this->gameResource->select(null, false);
         $this->computeStats->compute($games);
-        $playerStats = $this->computeStats->getPlayerStats();
-        usort($playerStats, function ($a, $b) {
-
-            /**
-             * @var $a PlayerStats
-             * @var $b PlayerStats
-             */
-            return $b->getEloRanking() * 100 - $a->getEloRanking() * 100;
-        });
-        return new Response(200, "", $playerStats);
+        return new Response(200, "", $this->computeStats->getPlayerStatsById($this->playerId));
     }
 
 }
