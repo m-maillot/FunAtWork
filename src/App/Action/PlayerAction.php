@@ -45,7 +45,8 @@ class PlayerAction
     {
         $param = $this->parameterParser->parse($request);
         if ($param->isValid()) {
-            $player = $this->playerResource->create(new Player(0, $param->getAvatar(), $param->getName()));
+            $player = $this->playerResource->create(new Player(0, $param->getAvatar(), $param->getName(), $param->getSurname(),
+                $param->getLogin(), $param->getPassword(), "", new \DateTime()));
             if ($player) {
                 return $response->withJSON(PlayerArrayMapper::transform($player));
             } else {
@@ -53,5 +54,29 @@ class PlayerAction
             }
         }
         return $response->withStatus(400, 'Missing arguments. Arguments required: name and avatar.');
+    }
+
+    public function signin(ServerRequestInterface $request, Response $response, $args)
+    {
+
+        $params = $this->parameterParser->parseSignin($request);
+        if (!$params->isValid()) {
+            $response->withStatus(400, "Missing login or password");
+        }
+
+        $player = $this->playerResource->selectOneByLoginPassword($params->getLogin(), $params->getPassword());
+
+        if (!$player) {
+            $response->withStatus(404, "Player not found");
+        }
+        $generatedToken = bin2hex(openssl_random_pseudo_bytes(8));
+        $tokenExpiration = new \DateTime();
+        $interval = new \DateInterval('P1M');
+        $tokenExpiration->add($interval);
+        $player->setToken($generatedToken);
+        $player->setTokenExpire($tokenExpiration);
+
+        $this->playerResource->update($player);
+        return $response->withJson(array('login' => $player->getLogin(), 'token' => $player->getToken(), 'expire_at' => $player->getTokenExpire()->getTimestamp()));
     }
 }

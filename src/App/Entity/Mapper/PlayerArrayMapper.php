@@ -19,6 +19,7 @@ class PlayerArrayMapper
         return array(
             'id' => $player->getId(),
             'name' => $player->getName(),
+            'surname' => $player->getSurname(),
             'avatar' => $player->getAvatar()
         );
     }

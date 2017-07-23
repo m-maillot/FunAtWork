@@ -33,10 +33,45 @@ class PlayerResource extends AbstractResource
     }
 
     /**
+     * @param string $token
+     * @return Player|null|object
+     */
+    public function selectOneByToken($token)
+    {
+        return $this->entityManager->getRepository('App\Entity\Player')->findOneBy(
+            array('token' => $token)
+        );
+    }
+
+    /**
+     * @param string $login
+     * @param string $password
+     * @return Player|null|object
+     */
+    public function selectOneByLoginPassword($login, $password)
+    {
+        return $this->entityManager->getRepository('App\Entity\Player')->findOneBy(
+            array('login' => $login, 'password' => $password)
+        );
+    }
+
+    /**
      * @param Player $player
      * @return Player
      */
     public function create(Player $player)
+    {
+        $this->entityManager->persist($player);
+        $this->entityManager->flush();
+        return $player;
+    }
+
+    /**
+     * Update a player from DB
+     * @param Player $player
+     * @return Player
+     */
+    public function update(Player $player)
     {
         $this->entityManager->persist($player);
         $this->entityManager->flush();
