@@ -2,6 +2,7 @@
 
 namespace App\Middleware;
 
+use App\Entity\Player;
 use App\Resource\PlayerResource;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\App;
@@ -51,7 +52,7 @@ class TokenAuth
             if (!$tokenAuth || sizeof($tokenAuth) == 0 || $tokenAuth[0] !== "AZUEJDOSeL87jk") {
                 return $response->withStatus(401, "Token not valid, admin access denied");
             }
-            return $next($request, $response);
+            return $next($request->withAttribute('user', new Player(0, "", "Admin", "Admin", "Admin", "", "", new \DateTime(0))), $response);
         }
 
         //Get the token sent from jquery
@@ -75,6 +76,6 @@ class TokenAuth
         $player->setTokenExpire($currentDate);
         $this->playerResource->update($player);
         //Continue with execution
-        return $next($request, $response);
+        return $next($request->withAttribute('user', $player), $response);
     }
 }
