@@ -4,6 +4,7 @@ namespace App\Action;
 
 use App\Action\Player\PlayerParametersParser;
 use App\Entity\Mapper\PlayerArrayMapper;
+use App\Entity\Player;
 use App\Resource\PlayerResource;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Http\Response;
@@ -40,13 +41,13 @@ class PlayerAction
         return $response->withStatus(404, "Player not found");
     }
 
-    /*
     // Create player API is disabled until add admin access
     public function create(ServerRequestInterface $request, Response $response, $args)
     {
         $param = $this->parameterParser->parse($request);
         if ($param->isValid()) {
-            $player = $this->playerResource->create(new Player(0, $param->getAvatar(), $param->getName()));
+            $player = $this->playerResource->create(new Player(0, $param->getAvatar(), $param->getName(), $param->getSurname(),
+                $param->getLogin(), $param->getPassword(), "", new \DateTime()));
             if ($player) {
                 return $response->withJSON(PlayerArrayMapper::transform($player));
             } else {
@@ -55,7 +56,6 @@ class PlayerAction
         }
         return $response->withStatus(400, 'Missing arguments. Arguments required: name and avatar.');
     }
-    */
 
     public function signin(ServerRequestInterface $request, Response $response, $args)
     {

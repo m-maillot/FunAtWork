@@ -4,6 +4,7 @@ namespace App\Middleware;
 
 use App\Resource\PlayerResource;
 use Psr\Http\Message\ServerRequestInterface;
+use Slim\App;
 use Slim\Http\Response;
 
 /**
@@ -15,11 +16,23 @@ use Slim\Http\Response;
 class TokenAuth
 {
 
+    const SCOPE_ADMIN = 1;
+    const SCOPE_LOGGED = 2;
+
+    /**
+     * @var PlayerResource
+     */
     private $playerResource;
 
-    public function __construct(PlayerResource $playerResource)
+    /**
+     * @var integer
+     */
+    private $scope;
+
+    public function __construct(App $app, $scope)
     {
-        $this->playerResource = $playerResource;
+        $this->playerResource = new PlayerResource($app->getContainer()->get('em'));
+        $this->scope = $scope;
     }
 
     /**
@@ -32,13 +45,17 @@ class TokenAuth
      */
     public function __invoke(ServerRequestInterface $request, Response $response, callable $next)
     {
-        //Get the token sent from jquery
-        $tokenAuth = $request->getHeader('Authorization');
-        $path = $request->getUri()->getPath();
-        if ($path == '/api/v1/signin') {
+        if ($this->scope == TokenAuth::SCOPE_ADMIN) {
+            //Get the token sent from jquery
+            $tokenAuth = $request->getHeader('Authorization-Admin');
+            if (!$tokenAuth || sizeof($tokenAuth) == 0 || $tokenAuth[0] !== "AZUEJDOSeL87jk") {
+                return $response->withStatus(401, "Token not valid, admin access denied");
+            }
             return $next($request, $response);
         }
 
+        //Get the token sent from jquery
+        $tokenAuth = $request->getHeader('Authorization');
         if (!$tokenAuth || sizeof($tokenAuth) == 0) {
             return $response->withStatus(401, "Missing token");
         }
