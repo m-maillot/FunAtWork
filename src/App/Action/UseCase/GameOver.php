@@ -4,6 +4,7 @@ namespace App\Action\UseCase;
 
 use App\Entity\Babyfoot\BabyfootGame;
 use App\Entity\Babyfoot\Mapper\BabyfootGameArrayMapper;
+use App\Entity\Player;
 use App\Resource\Babyfoot\BabyfootGameResource;
 
 /**
@@ -30,11 +31,12 @@ class GameOver
     }
 
     /**
+     * @param Player $creator
      * @param $gameId int
      * @param $shouldBeCancelled bool
      * @return Response
      */
-    public function execute($gameId, $shouldBeCancelled)
+    public function execute(Player $creator, $gameId, $shouldBeCancelled)
     {
         $game = $this->gameResource->selectOne($gameId);
         if (!$game) {
@@ -42,6 +44,9 @@ class GameOver
         }
         if ($game->getStatus() !== BabyfootGame::GAME_STARTED) {
             return new Response(400, 'Game is already over.');
+        }
+        if ($game->getCreator()->getId() !== $creator->getId()) {
+            return new Response(400, 'Only the creator can add a goal.');
         }
         $game->setStatus($shouldBeCancelled ? BabyfootGame::GAME_CANCELED : BabyfootGame::GAME_OVER);
         $game = $this->gameResource->createOrUpdate($game);

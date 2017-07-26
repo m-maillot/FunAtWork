@@ -2,7 +2,9 @@
 
 namespace App\Entity\Babyfoot;
 
+use App\Entity\Player;
 use Doctrine\Common\Collections\ArrayCollection;
+
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -63,6 +65,13 @@ class BabyfootGame
     protected $endedDate;
 
     /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Player", fetch="EAGER")
+     * @ORM\JoinColumn(name="creator_id", referencedColumnName="id")
+     * @var Player
+     */
+    protected $creator;
+
+    /**
      * BabyfootGame constructor.
      * @param int $id
      * @param int $status
@@ -70,8 +79,10 @@ class BabyfootGame
      * @param BabyfootTeam $blueTeam
      * @param \DateTime $startedDate
      * @param \DateTime $endedDate
+     * @param Player $creator
      */
-    public function __construct($id, $status, BabyfootTeam $redTeam, BabyfootTeam $blueTeam, \DateTime $startedDate, \DateTime $endedDate)
+    public function __construct($id, $status, BabyfootTeam $redTeam, BabyfootTeam $blueTeam,
+                                \DateTime $startedDate, \DateTime $endedDate, Player $creator)
     {
         $this->id = $id;
         $this->status = $status;
@@ -80,6 +91,7 @@ class BabyfootGame
         $this->goals = new ArrayCollection();
         $this->startedDate = $startedDate;
         $this->endedDate = $endedDate;
+        $this->creator = $creator;
     }
 
 
@@ -153,5 +165,13 @@ class BabyfootGame
     public function getEndedDate()
     {
         return $this->endedDate;
+    }
+
+    /**
+     * @return Player
+     */
+    public function getCreator()
+    {
+        return $this->creator;
     }
 }

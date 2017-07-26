@@ -46,13 +46,14 @@ class StartNewGame implements UseCase
 
 
     /**
+     * @param Player $creator
      * @param int $blueAttackId
      * @param int $blueDefenseId
      * @param int $redAttackId
      * @param int $redDefenseId
      * @return Response
      */
-    public function execute($blueAttackId, $blueDefenseId, $redAttackId, $redDefenseId)
+    public function execute(Player $creator, $blueAttackId, $blueDefenseId, $redAttackId, $redDefenseId)
     {
         if ($this->currentGame()) {
             return new Response(400, "Game is already running");
@@ -78,7 +79,8 @@ class StartNewGame implements UseCase
 
         if ($blueTeam && $redTeam) {
             // Create the game
-            $game = new BabyfootGame(0, BabyfootGame::GAME_STARTED, $blueTeam, $redTeam, new \DateTime(), new \DateTime());
+            $game = new BabyfootGame(0, BabyfootGame::GAME_STARTED, $blueTeam, $redTeam,
+                new \DateTime(), new \DateTime(), $creator);
             $game = $this->gameResource->createOrUpdate($game);
             return new Response(200, "Game created", $game);
         }

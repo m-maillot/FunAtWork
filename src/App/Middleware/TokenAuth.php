@@ -52,7 +52,7 @@ class TokenAuth
             if (!$tokenAuth || sizeof($tokenAuth) == 0 || $tokenAuth[0] !== "AZUEJDOSeL87jk") {
                 return $response->withStatus(401, "Token not valid, admin access denied");
             }
-            return $next($request->withAttribute('user', new Player(0, "", "Admin", "Admin", "Admin", "", "", new \DateTime(0))), $response);
+            return $next($request->withAttribute('user', new Player(0, "", "Admin", "Admin", "Admin", "", "", new \DateTime())), $response);
         }
 
         //Get the token sent from jquery
@@ -68,14 +68,12 @@ class TokenAuth
         if ($player->getTokenExpire()->getTimestamp() < $currentDate->getTimestamp()) {
             return $response->withStatus(401, "Token validity expired");
         }
-        // Make it available for the controller
-        $request->withAttribute("auth_user", $player);
         //Update token's expiration
         $interval = new \DateInterval('P1M');
         $currentDate->add($interval);
         $player->setTokenExpire($currentDate);
         $this->playerResource->update($player);
         //Continue with execution
-        return $next($request->withAttribute('user', $player), $response);
+        return $next($request->withAttribute('auth_user', $player), $response);
     }
 }

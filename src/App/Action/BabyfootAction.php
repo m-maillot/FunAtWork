@@ -72,8 +72,13 @@ class BabyfootAction
             return $response->withStatus(400, 'Missing arguments. Arguments required: Blue players, Red players identifier.');
         }
 
+        $connectedUser = $request->getAttribute("auth_user", null);
+        if (!$connectedUser) {
+            return $response->withStatus(400, 'Failed to find connected user.');
+        }
+
         $useCase = new StartNewGame($this->teamResource, $this->gameResource, $this->playerResource);
-        $useCaseResponse = $useCase->execute($params->getBluePlayerAttackId(), $params->getBluePlayerDefenseId(),
+        $useCaseResponse = $useCase->execute($connectedUser, $params->getBluePlayerAttackId(), $params->getBluePlayerDefenseId(),
             $params->getRedPlayerAttackId(), $params->getRedPlayerDefenseId());
         if ($useCaseResponse->isSuccess()) {
             return $response->withJSON(BabyfootGameArrayMapper::transform($useCaseResponse->getData()));
@@ -87,8 +92,14 @@ class BabyfootAction
         if (!$params->isValid()) {
             return $response->withStatus(400, 'Missing arguments. Arguments required: Game identifier.');
         }
+
+        $connectedUser = $request->getAttribute("auth_user", null);
+        if (!$connectedUser) {
+            return $response->withStatus(400, 'Failed to find connected user.');
+        }
+
         $useCase = new GameOver($this->gameResource);
-        $useCaseResp = $useCase->execute($params->getGameId(), $params->isCanceled());
+        $useCaseResp = $useCase->execute($connectedUser, $params->getGameId(), $params->isCanceled());
         if ($useCaseResp->isSuccess()) {
             return $response->withJson(BabyfootGameArrayMapper::transform($useCaseResp->getData()));
         }
@@ -102,8 +113,14 @@ class BabyfootAction
             return $response->withStatus(400, 'Missing arguments. Arguments required: Game identifier, Player identifier (striker) and position.');
         }
 
+        $connectedUser = $request->getAttribute("auth_user", null);
+        if (!$connectedUser) {
+            return $response->withStatus(400, 'Failed to find connected user.');
+        }
+
         $useCase = new AddGoal($this->goalResource, $this->gameResource, $this->playerResource);
-        $responseUseCase = $useCase->execute($params->getGameId(), $params->getStrikerId(), $params->getPosition(), $params->isGamelle());
+        $responseUseCase = $useCase->execute($connectedUser, $params->getGameId(), $params->getStrikerId(),
+            $params->getPosition(), $params->isGamelle());
         if ($responseUseCase->isSuccess()) {
             return $response->withJson(BabyfootGameArrayMapper::transform($responseUseCase->getData()));
         }

@@ -5,6 +5,7 @@ namespace App\Action\UseCase;
 use App\Entity\Babyfoot\BabyfootGame;
 use App\Entity\Babyfoot\BabyfootGoal;
 use App\Entity\Babyfoot\Mapper\BabyfootGameArrayMapper;
+use App\Entity\Player;
 use App\Resource\Babyfoot\BabyfootGameResource;
 use App\Resource\Babyfoot\BabyfootGoalResource;
 use App\Resource\PlayerResource;
@@ -49,13 +50,14 @@ class AddGoal implements UseCase
 
 
     /**
+     * @param Player $creator
      * @param int $gameId
      * @param int $strikerId
      * @param $position int
      * @param $gamelle bool
      * @return Response
      */
-    public function execute($gameId, $strikerId, $position, $gamelle)
+    public function execute(Player $creator, $gameId, $strikerId, $position, $gamelle)
     {
         $game = $this->gameResource->selectOne($gameId);
         if (!$game) {
@@ -63,6 +65,9 @@ class AddGoal implements UseCase
         }
         if ($game->getStatus() !== BabyfootGame::GAME_STARTED) {
             return new Response(400, 'Game is over.');
+        }
+        if ($game->getCreator()->getId() !== $creator->getId()) {
+            return new Response(400, 'Only the creator can add a goal.');
         }
         if (!$this->checkPlayerId($game, $strikerId)) {
             return new Response(400, 'Player not found in this game');
