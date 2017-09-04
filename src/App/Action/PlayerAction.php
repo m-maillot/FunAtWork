@@ -77,6 +77,6 @@ class PlayerAction
         $player->setTokenExpire($tokenExpiration);
 
         $this->playerResource->update($player);
-        return $response->withJson(array('login' => $player->getLogin(), 'token' => $player->getToken(), 'expire_at' => $player->getTokenExpire()->getTimestamp()));
+        return $response->withJson(array('player' => PlayerArrayMapper::transform($player), 'token' => $player->getToken(), 'expire_at' => $player->getTokenExpire()->getTimestamp()));
     }
 }
