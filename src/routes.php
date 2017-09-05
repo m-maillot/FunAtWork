@@ -14,6 +14,10 @@ $app->get('/', function ($request, $response, $args) {
 $app->group('/api/v1', function () use ($app) {
 
     $this->map(['POST'], '/signin', "App\Action\PlayerAction:signin");
+
+    $this->map(['POST'], '/groups', 'App\Action\GroupAction:create')->add(new TokenAuth($app, TokenAuth::SCOPE_ADMIN));
+    $this->map(['GET'], '/groups', 'App\Action\GroupAction:fetch')->add(new TokenAuth($app, TokenAuth::SCOPE_ADMIN));
+    $this->map(['GET'], '/groups/{group_id}', 'App\Action\GroupAction:fetchOne')->add(new TokenAuth($app, TokenAuth::SCOPE_ADMIN));
     // Player API
     $this->map(['POST'], '/players', 'App\Action\PlayerAction:create')->add(new TokenAuth($app, TokenAuth::SCOPE_ADMIN));
     $this->map(['GET'], '/players', 'App\Action\PlayerAction:fetch')->add(new TokenAuth($app, TokenAuth::SCOPE_LOGGED));

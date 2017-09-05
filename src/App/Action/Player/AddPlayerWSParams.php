@@ -29,6 +29,10 @@ class AddPlayerWSParams
      * @var string
      */
     private $password;
+    /**
+     * @var integer
+     */
+    private $groupId;
 
     /**
      * AddPlayerWSParams constructor.
@@ -37,14 +41,16 @@ class AddPlayerWSParams
      * @param string $avatar
      * @param string $login
      * @param string $password
+     * @param integer $groupId
      */
-    public function __construct($name, $surname, $avatar, $login, $password)
+    public function __construct($name, $surname, $avatar, $login, $password, $groupId)
     {
         $this->name = $name;
         $this->surname = $surname;
         $this->avatar = $avatar;
         $this->login = $login;
         $this->password = $password;
+        $this->groupId = $groupId;
     }
 
 
@@ -89,10 +95,18 @@ class AddPlayerWSParams
     }
 
     /**
+     * @return int
+     */
+    public function getGroupId()
+    {
+        return $this->groupId;
+    }
+
+    /**
      * @return bool
      */
     public function isValid()
     {
-        return $this->name && $this->avatar;
+        return $this->name && $this->avatar && $this->groupId;
     }
 }

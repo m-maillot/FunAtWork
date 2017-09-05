@@ -22,7 +22,8 @@ class PlayerParametersParser
         $avatar = $request->getParsedBody()['avatar'];
         $login = $request->getParsedBody()['login'];
         $password = $request->getParsedBody()['password'];
-        return new AddPlayerWSParams($name, $surname, $avatar, $login, $password);
+        $groupId = $request->getParsedBody()['group_id'];
+        return new AddPlayerWSParams($name, $surname, $avatar, $login, $password, $groupId);
     }
 
     /**

@@ -62,6 +62,13 @@ class Player
     private $tokenExpire;
 
     /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Group", fetch="EAGER")
+     * @ORM\JoinColumn(name="group_id", referencedColumnName="id")
+     * @var Group
+     */
+    protected $group;
+
+    /**
      * Player constructor.
      * @param int $id
      * @param string $avatar
