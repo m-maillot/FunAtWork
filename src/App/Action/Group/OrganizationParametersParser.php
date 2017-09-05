@@ -11,7 +11,7 @@ namespace App\Action\Group;
 
 use Psr\Http\Message\ServerRequestInterface;
 
-class GroupParametersParser
+class OrganizationParametersParser
 {
 
     /**

@@ -5,6 +5,7 @@ namespace App\Action;
 use App\Action\Player\PlayerParametersParser;
 use App\Entity\Mapper\PlayerArrayMapper;
 use App\Entity\Player;
+use App\Resource\OrganizationResource;
 use App\Resource\PlayerResource;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Http\Response;
@@ -18,23 +19,33 @@ class PlayerAction
 {
 
     private $playerResource;
+    private $organizationResource;
     private $parameterParser;
 
-    public function __construct(PlayerResource $playerResource)
+    public function __construct(PlayerResource $playerResource, OrganizationResource $organizationResource)
     {
         $this->playerResource = $playerResource;
+        $this->organizationResource = $organizationResource;
         $this->parameterParser = new PlayerParametersParser();
     }
 
     public function fetch(ServerRequestInterface $request, Response $response, $args)
     {
-        $players = $this->playerResource->select();
+        /**
+         * @var Player $connectedUser
+         */
+        $connectedUser = $request->getAttribute("auth_user", null);
+        $players = $this->playerResource->select($connectedUser->getOrganization()->getId());
         return $response->withJSON(PlayerArrayMapper::transforms($players));
     }
 
     public function fetchOne(ServerRequestInterface $request, Response $response, $args)
     {
-        $player = $this->playerResource->selectOne($args['player_id']);
+        /**
+         * @var Player $connectedUser
+         */
+        $connectedUser = $request->getAttribute("auth_user", null);
+        $player = $this->playerResource->selectOne($args['player_id'], $connectedUser->getOrganization()->getId());
         if ($player) {
             return $response->withJSON(PlayerArrayMapper::transform($player));
         }
@@ -45,12 +56,17 @@ class PlayerAction
     {
         $param = $this->parameterParser->parse($request);
         if ($param->isValid()) {
-            $player = $this->playerResource->create(new Player(0, $param->getAvatar(), $param->getName(), $param->getSurname(),
-                $param->getLogin(), $param->getPassword(), "", new \DateTime()));
-            if ($player) {
-                return $response->withJSON(PlayerArrayMapper::transform($player));
+            $organization = $this->organizationResource->selectOne($param->getGroupId());
+            if ($organization) {
+                $player = $this->playerResource->create(new Player(0, $param->getAvatar(), $param->getName(), $param->getSurname(),
+                    $param->getLogin(), $param->getPassword(), $organization, "", new \DateTime()));
+                if ($player) {
+                    return $response->withJSON(PlayerArrayMapper::transform($player));
+                } else {
+                    return $response->withStatus(500, 'Failed to create player in database.');
+                }
             } else {
-                return $response->withStatus(500, 'Failed to create player in database.');
+                return $response->withStatus(400, 'Unknown organization');
             }
         }
         return $response->withStatus(400, 'Missing arguments. Arguments required: name and avatar.');

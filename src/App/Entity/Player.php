@@ -62,11 +62,11 @@ class Player
     private $tokenExpire;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Group", fetch="EAGER")
-     * @ORM\JoinColumn(name="group_id", referencedColumnName="id")
-     * @var Group
+     * @ORM\ManyToOne(targetEntity="App\Entity\Organization", fetch="EAGER")
+     * @ORM\JoinColumn(name="organization_id", referencedColumnName="id")
+     * @var Organization
      */
-    protected $group;
+    protected $organization;
 
     /**
      * Player constructor.
@@ -76,10 +76,11 @@ class Player
      * @param $surname
      * @param string $login
      * @param string $password
+     * @param Organization $organization
      * @param string $token
      * @param \DateTime $tokenExpire
      */
-    public function __construct($id, $avatar, $name, $surname, $login, $password, $token, \DateTime $tokenExpire)
+    public function __construct($id, $avatar, $name, $surname, $login, $password, Organization $organization, $token, \DateTime $tokenExpire)
     {
         $this->id = $id;
         $this->avatar = $avatar;
@@ -87,6 +88,7 @@ class Player
         $this->surname = $surname;
         $this->login = $login;
         $this->password = $password;
+        $this->organization = $organization;
         $this->token = $token;
         $this->tokenExpire = $tokenExpire;
     }
@@ -146,6 +148,14 @@ class Player
     public function getToken()
     {
         return $this->token;
+    }
+
+    /**
+     * @return Organization
+     */
+    public function getOrganization()
+    {
+        return $this->organization;
     }
 
     /**

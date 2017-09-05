@@ -2,10 +2,12 @@
 // DIC configuration
 
 use App\Action\BabyfootAction;
+use App\Action\OrganizationAction;
 use App\Action\PlayerAction;
 use App\Resource\Babyfoot\BabyfootGameResource;
 use App\Resource\Babyfoot\BabyfootGoalResource;
 use App\Resource\Babyfoot\BabyfootTeamResource;
+use App\Resource\OrganizationResource;
 use App\Resource\PlayerResource;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\Setup;
@@ -49,7 +51,8 @@ $container['em'] = function ($c) {
  */
 $container['App\Action\PlayerAction'] = function ($c) {
     $playerResource = new PlayerResource($c->get('em'));
-    return new PlayerAction($playerResource);
+    $organizationResource = new OrganizationResource($c->get('em'));
+    return new PlayerAction($playerResource, $organizationResource);
 };
 
 /**
@@ -62,4 +65,13 @@ $container['App\Action\BabyfootAction'] = function ($c) {
     $goalResource = new BabyfootGoalResource($c->get('em'));
     $teamResource = new BabyfootTeamResource($c->get('em'));
     return new BabyfootAction($c->get('logger'), $teamResource, $gameResource, $goalResource, $playerResource);
+};
+
+/**
+ * @param $c ContainerInterface
+ * @return OrganizationAction
+ */
+$container['App\Action\OrganizationAction'] = function ($c) {
+    $organizationResource = new OrganizationResource($c->get('em'));
+    return new OrganizationAction($organizationResource);
 };

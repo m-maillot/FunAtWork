@@ -14,21 +14,26 @@ use App\Entity\Player;
 class PlayerResource extends AbstractResource
 {
     /**
+     * @param int $organizationId
      * @return Player[]
      */
-    public function select()
+    public function select($organizationId)
     {
-        return $this->entityManager->getRepository('App\Entity\Player')->findBy(array(), array('name' => 'ASC'));
+        return $this->entityManager->getRepository('App\Entity\Player')->findBy(
+            array('organization' => $organizationId),
+            array('name' => 'ASC')
+        );
     }
 
     /**
      * @param int $playerId
+     * @param int $organizationId
      * @return Player|null|object
      */
-    public function selectOne($playerId)
+    public function selectOne($playerId, $organizationId)
     {
         return $this->entityManager->getRepository('App\Entity\Player')->findOneBy(
-            array('id' => $playerId)
+            array('id' => $playerId, 'organization' => $organizationId)
         );
     }
 

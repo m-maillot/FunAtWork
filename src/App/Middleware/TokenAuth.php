@@ -2,6 +2,7 @@
 
 namespace App\Middleware;
 
+use App\Entity\Organization;
 use App\Entity\Player;
 use App\Resource\PlayerResource;
 use Psr\Http\Message\ServerRequestInterface;
@@ -52,10 +53,10 @@ class TokenAuth
             if (!$tokenAuth || sizeof($tokenAuth) == 0 || $tokenAuth[0] !== "AZUEJDOSeL87jk") {
                 return $response->withStatus(401, "Token not valid, admin access denied");
             }
-            return $next($request->withAttribute('user', new Player(0, "", "Admin", "Admin", "Admin", "", "", new \DateTime())), $response);
+            return $next($request->withAttribute('user', new Player(0, "", "Admin", "Admin", "Admin", "", new Organization(0, "", ""), "", new \DateTime())), $response);
         }
 
-        //Get the token sent from jquery
+        //Get the token sent from jqueryrm
         $tokenAuth = $request->getHeader('Authorization');
         if (!$tokenAuth || sizeof($tokenAuth) == 0) {
             return $response->withStatus(401, "Missing token");

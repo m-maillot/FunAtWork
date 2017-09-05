@@ -46,7 +46,7 @@ class AddGroupWSParams
      */
     public function isValid()
     {
-        return !isEmpty($this->name);
+        return $this->name && $this->icon;
     }
 
 }

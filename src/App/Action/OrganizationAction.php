@@ -2,10 +2,10 @@
 
 namespace App\Action;
 
-use App\Action\Group\GroupParametersParser;
-use App\Entity\Group;
-use App\Entity\Mapper\GroupArrayMapper;
-use App\Resource\GroupResource;
+use App\Action\Group\OrganizationParametersParser;
+use App\Entity\Organization;
+use App\Entity\Mapper\OrganizationArrayMapper;
+use App\Resource\OrganizationResource;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Http\Response;
 
@@ -14,29 +14,29 @@ use Slim\Http\Response;
  *
  * @package App\Action
  */
-class GroupAction
+class OrganizationAction
 {
 
-    private $groupResource;
+    private $organizationResource;
     private $parameterParser;
 
-    public function __construct(GroupResource $groupResource)
+    public function __construct(OrganizationResource $organizationResource)
     {
-        $this->groupResource = $groupResource;
-        $this->parameterParser = new GroupParametersParser();
+        $this->organizationResource = $organizationResource;
+        $this->parameterParser = new OrganizationParametersParser();
     }
 
     public function fetch(ServerRequestInterface $request, Response $response, $args)
     {
-        $groups = $this->groupResource->select();
-        return $response->withJSON(GroupArrayMapper::transforms($groups));
+        $groups = $this->organizationResource->select();
+        return $response->withJSON(OrganizationArrayMapper::transforms($groups));
     }
 
     public function fetchOne(ServerRequestInterface $request, Response $response, $args)
     {
-        $group = $this->groupResource->selectOne($args['group_id']);
+        $group = $this->organizationResource->selectOne($args['group_id']);
         if ($group) {
-            return $response->withJSON(GroupArrayMapper::transform($group));
+            return $response->withJSON(OrganizationArrayMapper::transform($group));
         }
         return $response->withStatus(404, "Player not found");
     }
@@ -45,9 +45,9 @@ class GroupAction
     {
         $param = $this->parameterParser->parse($request);
         if ($param->isValid()) {
-            $group = $this->groupResource->create(new Group(0, $param->getIcon(), $param->getName()));
+            $group = $this->organizationResource->create(new Organization(0, $param->getIcon(), $param->getName()));
             if ($group) {
-                return $response->withJSON(GroupArrayMapper::transform($group));
+                return $response->withJSON(OrganizationArrayMapper::transform($group));
             } else {
                 return $response->withStatus(500, 'Failed to create group in database.');
             }
