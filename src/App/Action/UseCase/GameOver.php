@@ -3,7 +3,6 @@
 namespace App\Action\UseCase;
 
 use App\Entity\Babyfoot\BabyfootGame;
-use App\Entity\Babyfoot\Mapper\BabyfootGameArrayMapper;
 use App\Entity\Player;
 use App\Resource\Babyfoot\BabyfootGameResource;
 
@@ -38,7 +37,7 @@ class GameOver
      */
     public function execute(Player $creator, $gameId, $shouldBeCancelled)
     {
-        $game = $this->gameResource->selectOne($gameId);
+        $game = $this->gameResource->selectOne($creator->getOrganization()->getId(), $gameId);
         if (!$game) {
             return new Response(404, 'Game not found.');
         }

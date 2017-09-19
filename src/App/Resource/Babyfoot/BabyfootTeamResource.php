@@ -14,11 +14,14 @@ use Doctrine\DBAL\Query\QueryBuilder;
 class BabyfootTeamResource extends AbstractResource
 {
     /**
+     * @param int $organisationId
      * @return BabyfootTeam[]
      */
-    public function select()
+    public function select($organisationId)
     {
-        return $this->entityManager->getRepository('App\Entity\Babyfoot\BabyfootTeam')->findAll();
+        return $this->entityManager->getRepository('App\Entity\Babyfoot\BabyfootTeam')->findBy(
+            array('organization' => $organisationId),
+            null);
     }
 
     /**

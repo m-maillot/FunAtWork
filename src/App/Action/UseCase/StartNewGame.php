@@ -3,7 +3,6 @@
 namespace App\Action\UseCase;
 
 use App\Entity\Babyfoot\BabyfootGame;
-use App\Entity\Babyfoot\BabyfootTeam;
 use App\Entity\Player;
 use App\Resource\Babyfoot\BabyfootGameResource;
 use App\Resource\Babyfoot\BabyfootTeamResource;
@@ -19,17 +18,13 @@ class StartNewGame implements UseCase
 {
 
     /**
-     * @var BabyfootTeamResource
+     * @var TeamManagement
      */
-    private $teamResource;
+    private $teamManagement;
     /**
      * @var BabyfootGameResource
      */
     private $gameResource;
-    /**
-     * @var PlayerResource
-     */
-    private $playerResource;
 
     /**
      * StartNewGame constructor.
@@ -39,9 +34,8 @@ class StartNewGame implements UseCase
      */
     public function __construct(BabyfootTeamResource $teamResource, BabyfootGameResource $gameResource, PlayerResource $playerResource)
     {
-        $this->teamResource = $teamResource;
+        $this->teamManagement = new TeamManagement($teamResource, $playerResource);
         $this->gameResource = $gameResource;
-        $this->playerResource = $playerResource;
     }
 
 
@@ -59,62 +53,26 @@ class StartNewGame implements UseCase
             return new Response(400, "Game is already running");
         }
 
-        if ($this->detectSamePlayerInTeam($blueAttackId, $blueDefenseId, $redAttackId, $redDefenseId)) {
+        if ($this->teamManagement->detectSamePlayerInTeam($blueAttackId, $blueDefenseId, $redAttackId, $redDefenseId)) {
             return new Response(400, "Same player in each team");
         }
 
-        $blueAttack = $this->playerResource->selectOne($blueAttackId);
-        $blueDefense = $this->playerResource->selectOne($blueDefenseId);
-        $redAttack = $this->playerResource->selectOne($redAttackId);
-        $redDefense = $this->playerResource->selectOne($redDefenseId);
+        $organizationId = $creator->getOrganization()->getId();
 
-        if (!$blueAttack && !$blueDefense && !$redAttack && !$redDefense) {
-            return new Response(400, "Missing player");
-        }
-
-
-        // Check team is already exist, otherwise create a new one
-        $blueTeam = $this->createTeamIfNoExist($blueAttack, $blueDefense);
-        $redTeam = $this->createTeamIfNoExist($redAttack, $redDefense);
+        // TODO  Check if other game is running for this organization, should deny request
+        $redTeam = $this->teamManagement->createTeam($organizationId, $redAttackId, $redDefenseId);
+        $blueTeam = $this->teamManagement->createTeam($organizationId, $blueAttackId, $blueDefenseId);
 
         if ($blueTeam && $redTeam) {
             // Create the game
             $game = new BabyfootGame(0, BabyfootGame::GAME_STARTED, $blueTeam, $redTeam,
-                new \DateTime(), new \DateTime(), $creator);
+                new \DateTime(), new \DateTime(), new \DateTime(), $creator, $creator->getOrganization(), null);
             $game = $this->gameResource->createOrUpdate($game);
             return new Response(200, "Game created", $game);
         }
-        return new Response(500, "Failed to create teams (" . $blueAttack->getName() . '-' . $blueDefense->getName() . ' vs ' . $redAttack->getName() . '-' . $redDefense->getName() . ')');
+        return new Response(500, "Failed to create teams");
     }
 
-    /**
-     * @param int $blueAttackId
-     * @param int $blueDefenseId
-     * @param int $redAttackId
-     * @param int $redDefenseId
-     * @return bool
-     */
-    public function detectSamePlayerInTeam($blueAttackId, $blueDefenseId, $redAttackId, $redDefenseId)
-    {
-        return $blueAttackId == $redAttackId || $blueAttackId == $redDefenseId
-            || $blueDefenseId == $redAttackId || $blueDefenseId == $redDefenseId;
-    }
-
-    /**
-     * @param Player $attack
-     * @param Player $defense
-     * @return BabyfootTeam
-     */
-    private function createTeamIfNoExist(Player $attack, Player $defense)
-    {
-        $team = $this->teamResource->selectByPlayers($attack, $defense);
-
-        if (!$team) {
-            $team = $this->teamResource->create(new BabyfootTeam(0, $attack, $defense));
-        }
-
-        return $team;
-    }
 
     /**
      * @return bool

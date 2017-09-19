@@ -2,10 +2,9 @@
 
 namespace App\Entity\Babyfoot;
 
+use App\Entity\Organization;
 use App\Entity\Player;
 use Doctrine\Common\Collections\ArrayCollection;
-
-use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
@@ -14,6 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
 class BabyfootGame
 {
 
+    const GAME_PLANNED = 0;
     const GAME_STARTED = 1;
     const GAME_OVER = 2;
     const GAME_CANCELED = 3;
@@ -56,6 +56,12 @@ class BabyfootGame
      * @ORM\Column(type="datetime")
      * @var \DateTime
      */
+    protected $plannedDate;
+
+    /**
+     * @ORM\Column(type="datetime")
+     * @var \DateTime
+     */
     protected $startedDate;
 
     /**
@@ -72,17 +78,35 @@ class BabyfootGame
     protected $creator;
 
     /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Organization", fetch="EAGER")
+     * @ORM\JoinColumn(name="organization_id", referencedColumnName="id")
+     * @var Organization
+     */
+    protected $organization;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Babyfoot\BabyfootTournament", fetch="EAGER")
+     * @ORM\JoinColumn(name="tournament_id", referencedColumnName="id")
+     * @var BabyfootTournament
+     */
+    protected $tournament;
+
+    /**
      * BabyfootGame constructor.
      * @param int $id
      * @param int $status
      * @param BabyfootTeam $redTeam
      * @param BabyfootTeam $blueTeam
      * @param \DateTime $startedDate
+     * @param \DateTime $plannedDate
      * @param \DateTime $endedDate
      * @param Player $creator
+     * @param Organization $organization
+     * @param BabyfootTournament|null $tournament
      */
     public function __construct($id, $status, BabyfootTeam $redTeam, BabyfootTeam $blueTeam,
-                                \DateTime $startedDate, \DateTime $endedDate, Player $creator)
+                                \DateTime $startedDate, \DateTime $plannedDate, \DateTime $endedDate, Player $creator, Organization $organization,
+                                BabyfootTournament $tournament)
     {
         $this->id = $id;
         $this->status = $status;
@@ -90,10 +114,12 @@ class BabyfootGame
         $this->blueTeam = $blueTeam;
         $this->goals = new ArrayCollection();
         $this->startedDate = $startedDate;
+        $this->plannedDate = $plannedDate;
         $this->endedDate = $endedDate;
         $this->creator = $creator;
+        $this->organization = $organization;
+        $this->tournament = $tournament;
     }
-
 
     /**
      * @return int
@@ -173,5 +199,13 @@ class BabyfootGame
     public function getCreator()
     {
         return $this->creator;
+    }
+
+    /**
+     * @return Organization
+     */
+    public function getOrganization()
+    {
+        return $this->organization;
     }
 }

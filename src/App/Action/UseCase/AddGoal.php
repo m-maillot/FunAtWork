@@ -59,7 +59,7 @@ class AddGoal implements UseCase
      */
     public function execute(Player $creator, $gameId, $strikerId, $position, $gamelle)
     {
-        $game = $this->gameResource->selectOne($gameId);
+        $game = $this->gameResource->selectOne($creator->getOrganization()->getId(), $gameId);
         if (!$game) {
             return new Response(400, 'Game not found.');
         }
@@ -72,7 +72,7 @@ class AddGoal implements UseCase
         if (!$this->checkPlayerId($game, $strikerId)) {
             return new Response(400, 'Player not found in this game');
         }
-        $striker = $this->playerResource->selectOne($strikerId);
+        $striker = $this->playerResource->selectOne($strikerId, $creator->getOrganization()->getId());
         if (!$striker) {
             return new Response(400, 'Player not found');
         }

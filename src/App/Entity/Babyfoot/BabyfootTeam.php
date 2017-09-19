@@ -2,8 +2,8 @@
 
 namespace App\Entity\Babyfoot;
 
+use App\Entity\Organization;
 use App\Entity\Player;
-use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
@@ -35,17 +35,27 @@ class BabyfootTeam
     protected $playerDefense;
 
     /**
-     * Team constructor.
-     * @param int $id
-     * @param Player $player1
-     * @param Player $player2
+     * @ORM\ManyToOne(targetEntity="App\Entity\Organization", fetch="EAGER")
+     * @ORM\JoinColumn(name="organization_id", referencedColumnName="id")
+     * @var Organization
      */
-    public function __construct($id, Player $player1, Player $player2)
+    protected $organization;
+
+    /**
+     * BabyfootTeam constructor.
+     * @param int $id
+     * @param Player $playerAttack
+     * @param Player $playerDefense
+     * @param Organization $organization
+     */
+    public function __construct($id, Player $playerAttack, Player $playerDefense, Organization $organization)
     {
         $this->id = $id;
-        $this->playerAttack = $player1;
-        $this->playerDefense = $player2;
+        $this->playerAttack = $playerAttack;
+        $this->playerDefense = $playerDefense;
+        $this->organization = $organization;
     }
+
 
     /**
      * @return int
@@ -69,5 +79,13 @@ class BabyfootTeam
     public function getPlayerDefense()
     {
         return $this->playerDefense;
+    }
+
+    /**
+     * @return Organization
+     */
+    public function getOrganization()
+    {
+        return $this->organization;
     }
 }

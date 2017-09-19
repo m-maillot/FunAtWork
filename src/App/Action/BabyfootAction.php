@@ -12,6 +12,7 @@ use App\Action\UseCase\Model\PlayerStatsMapper;
 use App\Action\UseCase\Model\TeamStatsMapper;
 use App\Action\UseCase\StartNewGame;
 use App\Entity\Babyfoot\Mapper\BabyfootGameArrayMapper;
+use App\Entity\Player;
 use App\Resource\Babyfoot\BabyfootGameResource;
 use App\Resource\Babyfoot\BabyfootGoalResource;
 use App\Resource\Babyfoot\BabyfootTeamResource;
@@ -49,14 +50,22 @@ class BabyfootAction
     public function fetchGames(ServerRequestInterface $request, Response $response, $args)
     {
         $limit = $request->getQueryParam('limit', null);
-        $games = $this->gameResource->select($limit);
+        /**
+         * @var $connectedUser Player
+         */
+        $connectedUser = $request->getAttribute("auth_user", null);
+        $games = $this->gameResource->select($connectedUser->getOrganization()->getId(), $limit);
         return $response->withJSON(BabyfootGameArrayMapper::transforms($games));
     }
 
     public function fetchOneGame(ServerRequestInterface $request, Response $response, $args)
     {
         $gameId = $args['game_id'];
-        $game = $this->gameResource->selectOne($gameId);
+        /**
+         * @var $connectedUser Player
+         */
+        $connectedUser = $request->getAttribute("auth_user", null);
+        $game = $this->gameResource->selectOne($connectedUser->getOrganization()->getId(), $gameId);
         if ($game) {
             return $response->withJson(BabyfootGameArrayMapper::transform($game));
         }
@@ -98,6 +107,8 @@ class BabyfootAction
             return $response->withStatus(400, 'Failed to find connected user.');
         }
 
+        // TODO Check connected user is the creator or a player
+
         $useCase = new GameOver($this->gameResource);
         $useCaseResp = $useCase->execute($connectedUser, $params->getGameId(), $params->isCanceled());
         if ($useCaseResp->isSuccess()) {
@@ -117,6 +128,8 @@ class BabyfootAction
         if (!$connectedUser) {
             return $response->withStatus(400, 'Failed to find connected user.');
         }
+
+        // TODO Check connected user is the creator or a player
 
         $useCase = new AddGoal($this->goalResource, $this->gameResource, $this->playerResource);
         $responseUseCase = $useCase->execute($connectedUser, $params->getGameId(), $params->getStrikerId(),
