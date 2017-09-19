@@ -17,10 +17,10 @@ class BabyfootGameResource extends AbstractResource
      * @param bool $desc
      * @return BabyfootGame[]
      */
-    public function select($organizationId, $limit = null, $desc = true)
+    public function selectWithoutTournament($organizationId, $limit = null, $desc = true)
     {
         return $this->entityManager->getRepository('App\Entity\Babyfoot\BabyfootGame')->findBy(
-            array('organization' => $organizationId),
+            array('organization' => $organizationId, 'tournament' => null),
             array('startedDate' => ($desc) ? 'DESC' : 'ASC'), $limit);
     }
 

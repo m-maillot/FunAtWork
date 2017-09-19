@@ -35,7 +35,7 @@ class ComputeTeamStats implements UseCase
 
     public function execute()
     {
-        $games = $this->gameResource->select(null, false);
+        $games = $this->gameResource->selectWithoutTournament(null, false);
         $this->computeStats->compute($games);
         return new Response(200, "", $this->computeStats->getTeamStats());
     }

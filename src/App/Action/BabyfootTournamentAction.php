@@ -2,18 +2,11 @@
 
 namespace App\Action;
 
-use App\Action\Babyfoot\GameParametersParser;
 use App\Action\Babyfoot\TournamentParametersParser;
-use App\Action\UseCase\AddGoal;
-use App\Action\UseCase\ComputePlayerStats;
-use App\Action\UseCase\ComputeTeamStats;
-use App\Action\UseCase\ComputeUniquePlayerStats;
-use App\Action\UseCase\GameOver;
-use App\Action\UseCase\Model\PlayerStatsMapper;
-use App\Action\UseCase\Model\TeamStatsMapper;
-use App\Action\UseCase\StartNewGame;
-use App\Entity\Babyfoot\Mapper\BabyfootGameArrayMapper;
+use App\Action\UseCase\CreateTournament;
+use App\Entity\Babyfoot\Mapper\BabyfootTournamentArrayMapper;
 use App\Entity\Player;
+use App\Resource\Babyfoot\BabyfootGameKnockoutResource;
 use App\Resource\Babyfoot\BabyfootGameResource;
 use App\Resource\Babyfoot\BabyfootGoalResource;
 use App\Resource\Babyfoot\BabyfootTeamResource;
@@ -37,11 +30,13 @@ class BabyfootTournamentAction
     private $goalResource;
     private $playerResource;
     private $tournamentResource;
+    private $knockoutResource;
     private $parameterParser;
 
     public function __construct(Logger $logger, BabyfootTeamResource $teamResource, BabyfootGameResource $gameResource,
                                 BabyfootGoalResource $goalResource, PlayerResource $playerResource,
-                                BabyfootTournamentResource $tournamentResource)
+                                BabyfootTournamentResource $tournamentResource,
+                                BabyfootGameKnockoutResource $knockoutResource)
     {
         $this->logger = $logger;
         $this->teamResource = $teamResource;
@@ -49,6 +44,7 @@ class BabyfootTournamentAction
         $this->goalResource = $goalResource;
         $this->playerResource = $playerResource;
         $this->tournamentResource = $tournamentResource;
+        $this->knockoutResource = $knockoutResource;
         $this->parameterParser = new TournamentParametersParser();
     }
 
@@ -60,11 +56,25 @@ class BabyfootTournamentAction
         $connectedUser = $request->getAttribute("auth_user", null);
 
         $params = $this->parameterParser->parseCreateTournament($request);
-        // TODO Create all teams
-        // TODO Create tournament
-        // TODO Create all matchs for this tournament
-        // TODO For each match, create a GameKnockout
+        $usecase = new CreateTournament($this->tournamentResource, $this->gameResource, $this->teamResource,
+            $this->playerResource, $this->knockoutResource);
+        $useCaseResponse = $usecase->execute($connectedUser, $params);
+        return $response->withStatus(200, "OK");
+    }
 
-        return $response->withJSON(BabyfootGameArrayMapper::transforms($games));
+    public function fetchOneTournament(ServerRequestInterface $request, Response $response, $args)
+    {
+        /**
+         * @var $connectedUser Player
+         */
+        $connectedUser = $request->getAttribute("auth_user", null);
+
+        $tournamentId = $args['tournament_id'];
+        $tournament = $this->tournamentResource->selectOne($tournamentId);
+        if ($tournament) {
+            return $response->withJson(BabyfootTournamentArrayMapper::transform($tournament));
+        }
+
+        return $response->withStatus(404, 'Tournament not found.');
     }
 }

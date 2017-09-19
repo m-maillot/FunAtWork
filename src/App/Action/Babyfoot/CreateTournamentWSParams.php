@@ -6,18 +6,17 @@
  * Time: 5:34 PM
  */
 
-namespace App\Action\Player;
+namespace App\Action\Babyfoot;
 
 
-use App\Action\Babyfoot\Model\TournamentGameInitial;
-use App\Action\Babyfoot\Model\TournamentGameKnockout;
+use App\Action\Babyfoot\Model\TournamentGame;
 use App\Entity\Organization;
 
 class CreateTournamentWSParams
 {
 
     /**
-     * @var int
+     * @var \DateTime
      */
     private $startedDate;
 
@@ -32,34 +31,27 @@ class CreateTournamentWSParams
     private $organisation;
 
     /**
-     * @var TournamentGameInitial[]
+     * @var TournamentGame[]
      */
-    private $initalGames;
-
-    /**
-     * @var TournamentGameKnockout[]
-     */
-    private $knockoutGames;
+    private $games;
 
     /**
      * CreateTournamentParams constructor.
-     * @param int $startedDate
+     * @param \DateTime $startedDate
      * @param string $name
      * @param Organization $organisation
-     * @param TournamentGameInitial[] $initialGames
-     * @param TournamentGameKnockout[] $knockoutGames
+     * @param TournamentGame[] $games
      */
-    public function __construct($startedDate, $name, Organization $organisation, array $initialGames, array $knockoutGames)
+    public function __construct($startedDate, $name, Organization $organisation, array $games)
     {
         $this->startedDate = $startedDate;
         $this->name = $name;
         $this->organisation = $organisation;
-        $this->initalGames = $initialGames;
-        $this->knockoutGames = $knockoutGames;
+        $this->games = $games;
     }
 
     /**
-     * @return int
+     * @return \DateTime
      */
     public function getStartedDate()
     {
@@ -83,19 +75,11 @@ class CreateTournamentWSParams
     }
 
     /**
-     * @return TournamentGameInitial[]
+     * @return TournamentGame[]
      */
-    public function getInitalGames()
+    public function getGames()
     {
-        return $this->initalGames;
-    }
-
-    /**
-     * @return TournamentGameKnockout[]
-     */
-    public function getKnockoutGames()
-    {
-        return $this->knockoutGames;
+        return $this->games;
     }
 
 }

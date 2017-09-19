@@ -83,6 +83,7 @@ class AddGoal implements UseCase
         $redScore = BabyfootGameArrayMapper::computeGoals($game, $game->getRedTeam());
         if ($blueScore >= 10 || $redScore >= 10) {
             $game->setStatus(BabyfootGame::GAME_OVER);
+            $game->setEndedDate(new \DateTime());
             $this->gameResource->createOrUpdate($game);
         }
         return new Response(200, "", $game);

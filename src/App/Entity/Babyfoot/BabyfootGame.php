@@ -5,6 +5,7 @@ namespace App\Entity\Babyfoot;
 use App\Entity\Organization;
 use App\Entity\Player;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
@@ -53,19 +54,19 @@ class BabyfootGame
     protected $goals;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", nullable=true)
      * @var \DateTime
      */
     protected $plannedDate;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", nullable=true)
      * @var \DateTime
      */
     protected $startedDate;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", nullable=true)
      * @var \DateTime
      */
     protected $endedDate;
@@ -104,9 +105,9 @@ class BabyfootGame
      * @param Organization $organization
      * @param BabyfootTournament|null $tournament
      */
-    public function __construct($id, $status, BabyfootTeam $redTeam, BabyfootTeam $blueTeam,
-                                \DateTime $startedDate, \DateTime $plannedDate, \DateTime $endedDate, Player $creator, Organization $organization,
-                                BabyfootTournament $tournament)
+    public function __construct($id, $status, BabyfootTeam $redTeam = null, BabyfootTeam $blueTeam = null,
+                                \DateTime $startedDate = null, \DateTime $plannedDate = null, \DateTime $endedDate = null, Player $creator, Organization $organization,
+                                BabyfootTournament $tournament = null)
     {
         $this->id = $id;
         $this->status = $status;
@@ -188,9 +189,25 @@ class BabyfootGame
     /**
      * @return \DateTime
      */
+    public function getPlannedDate()
+    {
+        return $this->plannedDate;
+    }
+
+    /**
+     * @return \DateTime
+     */
     public function getEndedDate()
     {
         return $this->endedDate;
+    }
+
+    /**
+     * @param \DateTime $endedDate
+     */
+    public function setEndedDate($endedDate)
+    {
+        $this->endedDate = $endedDate;
     }
 
     /**

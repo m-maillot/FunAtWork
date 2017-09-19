@@ -24,8 +24,9 @@ class BabyfootGameArrayMapper
             'blueTeam' => BabyfootTeamArrayMapper::transform($game->getBlueTeam()),
             'status' => $game->getStatus(),
             'goals' => BabyfootGoalArrayMapper::transforms($game->getGoals()),
-            'started' => $game->getStartedDate()->getTimestamp(),
-            'ended' => $game->getEndedDate()->getTimestamp()
+            'started' => $game->getStartedDate() != null ? $game->getStartedDate()->getTimestamp() : '',
+            'planned' => $game->getPlannedDate() != null ? $game->getPlannedDate()->getTimestamp() : '',
+            'ended' => $game->getEndedDate() != null ? $game->getEndedDate()->getTimestamp() : ''
         ];
     }
 
@@ -50,8 +51,11 @@ class BabyfootGameArrayMapper
      * @param BabyfootTeam $team
      * @return int
      */
-    public static function computeGoals(BabyfootGame $game, BabyfootTeam $team)
+    public static function computeGoals(BabyfootGame $game, BabyfootTeam $team = null)
     {
+        if ($team == null) {
+            return 0;
+        }
         /**
          * @var int
          */

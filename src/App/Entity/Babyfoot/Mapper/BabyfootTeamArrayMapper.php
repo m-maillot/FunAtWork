@@ -14,8 +14,11 @@ use App\Entity\Mapper\PlayerArrayMapper;
 
 class BabyfootTeamArrayMapper
 {
-    public static function transform(BabyfootTeam $team)
+    public static function transform(BabyfootTeam $team = null)
     {
+        if ($team == null) {
+            return array();
+        }
         return array(
             'id' => $team->getId(),
             'attackPlayer' => PlayerArrayMapper::transform($team->getPlayerAttack()),

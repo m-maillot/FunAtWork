@@ -4,6 +4,7 @@ namespace App\Entity\Babyfoot;
 
 use App\Entity\Organization;
 use App\Entity\Player;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity

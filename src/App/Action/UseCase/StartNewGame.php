@@ -66,7 +66,7 @@ class StartNewGame implements UseCase
         if ($blueTeam && $redTeam) {
             // Create the game
             $game = new BabyfootGame(0, BabyfootGame::GAME_STARTED, $blueTeam, $redTeam,
-                new \DateTime(), new \DateTime(), new \DateTime(), $creator, $creator->getOrganization(), null);
+                new \DateTime(), null, null, $creator, $creator->getOrganization(), null);
             $game = $this->gameResource->createOrUpdate($game);
             return new Response(200, "Game created", $game);
         }

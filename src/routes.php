@@ -25,6 +25,8 @@ $app->group('/api/v1', function () use ($app) {
 
     // Babyfoot API
     $this->group('/babyfoot', function () use ($app) {
+        $this->map(['GET'], '/tournaments/{tournament_id}', 'App\Action\BabyfootTournamentAction:fetchOneTournament')->add(new TokenAuth($app, TokenAuth::SCOPE_LOGGED));
+        $this->map(['POST'], '/tournaments', 'App\Action\BabyfootTournamentAction:createTournament')->add(new TokenAuth($app, TokenAuth::SCOPE_LOGGED));
         $this->map(['GET'], '/games', 'App\Action\BabyfootAction:fetchGames')->add(new TokenAuth($app, TokenAuth::SCOPE_LOGGED));
         $this->map(['POST'], '/start', 'App\Action\BabyfootAction:startGame')->add(new TokenAuth($app, TokenAuth::SCOPE_LOGGED));
         $this->map(['GET'], '/games/{game_id}', 'App\Action\BabyfootAction:fetchOneGame')->add(new TokenAuth($app, TokenAuth::SCOPE_LOGGED));

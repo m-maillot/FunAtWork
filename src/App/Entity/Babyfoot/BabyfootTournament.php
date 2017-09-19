@@ -9,10 +9,12 @@
 namespace App\Entity\Babyfoot;
 
 use App\Entity\Organization;
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\PersistentCollection;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="babyfoot_goal")
+ * @ORM\Table(name="babyfoot_tournament")
  */
 class BabyfootTournament
 {
@@ -38,17 +40,23 @@ class BabyfootTournament
     protected $startedDate;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", nullable=true)
      * @var \DateTime
      */
     protected $endedDate;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Organization", fetch="EAGER")
-     * @ORM\JoinColumn(name="organization_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="organization_id", referencedColumnName="id", nullable=false)
      * @var Organization
      */
     protected $organization;
+
+    /**
+     * @ORM\OneToMany(targetEntity="BabyfootGameKnockout", mappedBy="tournament", fetch="EAGER")
+     * @var PersistentCollection
+     */
+    protected $games;
 
     /**
      * BabyfootTournament constructor.
@@ -59,7 +67,7 @@ class BabyfootTournament
      * @param \DateTime $endedDate
      * @param Organization $organization
      */
-    public function __construct($id, $type, $name, \DateTime $startedDate, \DateTime $endedDate, Organization $organization)
+    public function __construct($id, $type, $name, \DateTime $startedDate, \DateTime $endedDate = null, Organization $organization)
     {
         $this->id = $id;
         $this->type = $type;
@@ -115,5 +123,13 @@ class BabyfootTournament
     public function getOrganization()
     {
         return $this->organization;
+    }
+
+    /**
+     * @return PersistentCollection
+     */
+    public function getGames()
+    {
+        return $this->games;
     }
 }

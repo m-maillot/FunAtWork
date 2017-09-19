@@ -54,7 +54,7 @@ class BabyfootAction
          * @var $connectedUser Player
          */
         $connectedUser = $request->getAttribute("auth_user", null);
-        $games = $this->gameResource->select($connectedUser->getOrganization()->getId(), $limit);
+        $games = $this->gameResource->selectWithoutTournament($connectedUser->getOrganization()->getId(), $limit);
         return $response->withJSON(BabyfootGameArrayMapper::transforms($games));
     }
 

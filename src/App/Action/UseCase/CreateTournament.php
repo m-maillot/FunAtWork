@@ -9,13 +9,14 @@
 namespace App\Action\UseCase;
 
 
-use App\Action\Babyfoot\Model\TournamentGameInitial;
+use App\Action\Babyfoot\CreateTournamentWSParams;
+use App\Action\Babyfoot\Model\TournamentGame;
 use App\Action\Babyfoot\Model\TournamentGameKnockout;
-use App\Action\Player\CreateTournamentWSParams;
 use App\Entity\Babyfoot\BabyfootGame;
 use App\Entity\Babyfoot\BabyfootGameKnockout;
 use App\Entity\Babyfoot\BabyfootTournament;
 use App\Entity\Player;
+use App\Resource\Babyfoot\BabyfootGameKnockoutResource;
 use App\Resource\Babyfoot\BabyfootGameResource;
 use App\Resource\Babyfoot\BabyfootTeamResource;
 use App\Resource\Babyfoot\BabyfootTournamentResource;
@@ -36,6 +37,10 @@ class CreateTournament implements UseCase
      * @var BabyfootGameResource
      */
     private $gameResource;
+    /**
+     * @var BabyfootGameKnockoutResource
+     */
+    private $gameKnockoutResource;
 
     /**
      * CreateTournament constructor.
@@ -43,13 +48,16 @@ class CreateTournament implements UseCase
      * @param BabyfootGameResource $gameResource
      * @param BabyfootTeamResource $teamResource
      * @param PlayerResource $playerResource
+     * @param BabyfootGameKnockoutResource $babyfootGameKnockoutResource
      */
     public function __construct(BabyfootTournamentResource $tournamentResource, BabyfootGameResource $gameResource,
-                                BabyfootTeamResource $teamResource, PlayerResource $playerResource)
+                                BabyfootTeamResource $teamResource, PlayerResource $playerResource,
+                                BabyfootGameKnockoutResource $babyfootGameKnockoutResource)
     {
         $this->tournamentResource = $tournamentResource;
         $this->gameResource = $gameResource;
         $this->teamManagement = new TeamManagement($teamResource, $playerResource);
+        $this->gameKnockoutResource = $babyfootGameKnockoutResource;
     }
 
 
@@ -63,8 +71,7 @@ class CreateTournament implements UseCase
         $tournament = new BabyfootTournament(0, 0, $params->getName(), $params->getStartedDate(), null, $params->getOrganisation());
         $tournament = $this->tournamentResource->createOrUpdate($tournament);
         // Create each game for the tournament
-        $tempIdMatchInit = $this->createInitialsGames($tournament, $registerUser, $params->getInitalGames());
-        $this->createKnockoutGames($tournament, $registerUser, $params->getKnockoutGames(), $tempIdMatchInit);
+        $this->createGames($tournament, $registerUser, $params->getGames());
 
         return new Response(201, "Tournament created");
     }
@@ -72,47 +79,42 @@ class CreateTournament implements UseCase
     /**
      * @param BabyfootTournament $tournament
      * @param Player $creator
-     * @param TournamentGameInitial[] $games
-     * @return array
+     * @param TournamentGame[] $games
      */
-    private function createInitialsGames(BabyfootTournament $tournament, Player $creator, array $games)
+    private function createGames(BabyfootTournament $tournament, Player $creator, array $games)
     {
         $tempIdMatch = array();
         foreach ($games as $game) {
-            // TODO  Check if other game is running for this organization, should deny request
-            $redTeam = $this->teamManagement->createTeam($creator->getOrganization()->getId(), $game->getRedAttackId(), $game->getRedDefenseId());
-            $blueTeam = $this->teamManagement->createTeam($creator->getOrganization()->getId(), $game->getBlueAttackId(), $game->getRedDefenseId());
-
-            if ($blueTeam && $redTeam) {
-                // Create the game
-                $game = new BabyfootGame(0, BabyfootGame::GAME_STARTED, $blueTeam, $redTeam,
-                    null, $game->getPlannedDate(), null, $creator, $creator->getOrganization(), $tournament);
-                $game = $this->gameResource->createOrUpdate($game);
-                $tempIdMatch[$game->getId()] = $game->getId();
+            if ($game->isInFirstPool()) {
+                $redTeam = $this->teamManagement->createTeam($creator->getOrganization()->getId(), $game->getRedAttackId(), $game->getRedDefenseId());
+                $blueTeam = $this->teamManagement->createTeam($creator->getOrganization()->getId(), $game->getBlueAttackId(), $game->getRedDefenseId());
+            } else {
+                $redTeam = null;
+                $blueTeam = null;
             }
+
+            // Create the game
+            $createdGame = new BabyfootGame(0, BabyfootGame::GAME_PLANNED, $blueTeam, $redTeam,
+                null, $game->getPlannedDate(), null, $creator, $creator->getOrganization(), $tournament);
+            $createdGame = $this->gameResource->createOrUpdate($createdGame);
+
+            $knockout = new BabyfootGameKnockout(0, $game->getRound(), $tournament, $createdGame,
+                $this->loadKnockoutGame($tempIdMatch[$game->getRedWinnerOfGameId()]),
+                $this->loadKnockoutGame($tempIdMatch[$game->getBlueWinnerOfGameId()]));
+            $this->gameKnockoutResource->createOrUpdate($knockout);
+            $tempIdMatch[$game->getTempGameId()] = $knockout->getId();
         }
-        return $tempIdMatch;
     }
 
     /**
-     * @param BabyfootTournament $tournament
-     * @param Player $creator
-     * @param TournamentGameKnockout[] $games
-     * @param array $tempIdMatchInit
-     * @return array
+     * @param $knockoutId
+     * @return BabyfootGameKnockout|null
      */
-    private function createKnockoutGames(BabyfootTournament $tournament, Player $creator, array $games, array $tempIdMatchInit)
+    private function loadKnockoutGame($knockoutId)
     {
-        foreach ($games as $game) {
-            $redGameId = $tempIdMatchInit[$game->getRedWinnerOfGameId()];
-            $blueGameId = $tempIdMatchInit[$game->getBlueWinnerOfGameId()];
-            // Create the game
-            $game = new BabyfootGame(0, BabyfootGame::GAME_STARTED, null, null,
-                null, $game->getPlannedDate(), null, $creator, $creator->getOrganization(), $tournament);
-            $game = $this->gameResource->createOrUpdate($game);
-            $redGame = $this->gameResource->selectOne($tournament->getOrganization()->getId(), $redGameId);
-            $blueGame = $this->gameResource->selectOne($tournament->getOrganization()->getId(), $blueGameId);
-            new BabyfootGameKnockout($tournament, $game, $redGame, $blueGame);
+        if ($knockoutId) {
+            return $this->gameKnockoutResource->selectOne($knockoutId);
         }
+        return null;
     }
 }
