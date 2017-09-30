@@ -13,6 +13,7 @@ use App\Action\UseCase\Model\TeamStatsMapper;
 use App\Action\UseCase\StartNewGame;
 use App\Entity\Babyfoot\Mapper\BabyfootGameArrayMapper;
 use App\Entity\Player;
+use App\Resource\Babyfoot\BabyfootGameKnockoutResource;
 use App\Resource\Babyfoot\BabyfootGameResource;
 use App\Resource\Babyfoot\BabyfootGoalResource;
 use App\Resource\Babyfoot\BabyfootTeamResource;
@@ -34,16 +35,19 @@ class BabyfootAction
     private $gameResource;
     private $goalResource;
     private $playerResource;
+    private $knockoutResource;
     private $parameterParser;
 
     public function __construct(Logger $logger, BabyfootTeamResource $teamResource, BabyfootGameResource $gameResource,
-                                BabyfootGoalResource $goalResource, PlayerResource $playerResource)
+                                BabyfootGoalResource $goalResource, PlayerResource $playerResource,
+                                BabyfootGameKnockoutResource $knockoutResource)
     {
         $this->logger = $logger;
         $this->teamResource = $teamResource;
         $this->gameResource = $gameResource;
         $this->goalResource = $goalResource;
         $this->playerResource = $playerResource;
+        $this->knockoutResource = $knockoutResource;
         $this->parameterParser = new GameParametersParser();
     }
 
@@ -131,7 +135,7 @@ class BabyfootAction
 
         // TODO Check connected user is the creator or a player
 
-        $useCase = new AddGoal($this->goalResource, $this->gameResource, $this->playerResource);
+        $useCase = new AddGoal($this->goalResource, $this->gameResource, $this->playerResource, $this->knockoutResource);
         $responseUseCase = $useCase->execute($connectedUser, $params->getGameId(), $params->getStrikerId(),
             $params->getPosition(), $params->isGamelle());
         if ($responseUseCase->isSuccess()) {

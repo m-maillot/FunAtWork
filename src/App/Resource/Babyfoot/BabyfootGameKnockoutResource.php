@@ -25,18 +25,45 @@ class BabyfootGameKnockoutResource extends AbstractResource
     }
 
     /**
-     * @param int $gameId
+     * @param int $knockoutId
      * @return BabyfootGameKnockout|null
      */
-    public function selectOne($gameId)
+    public function selectOne($knockoutId)
     {
         /**
          * @var $game BabyfootGameKnockout|null
          */
         $game = $this->entityManager->getRepository('App\Entity\Babyfoot\BabyfootGameKnockout')->findOneBy(
-            array('id' => $gameId)
+            array('id' => $knockoutId)
         );
         return $game;
+    }
+
+    /**
+     * @param int $tournamentId
+     * @param int $gameId
+     * @param boolean $redPosition
+     * @return BabyfootGameKnockout|null
+     */
+    public function selectNextGame($tournamentId, $gameId, $redPosition)
+    {
+        /**
+         * @var $knockout BabyfootGameKnockout|null
+         */
+        $knockout = $this->entityManager->getRepository('App\Entity\Babyfoot\BabyfootGameKnockout')->findOneBy(
+            array('tournament' => $tournamentId, 'game' => $gameId)
+        );
+        if ($knockout) {
+            $winnerOf = $redPosition ? 'redWinnerOf' : 'blueWinnerOf';
+            /**
+             * @var $nextGame BabyfootGameKnockout|null
+             */
+            $nextGame = $this->entityManager->getRepository('App\Entity\Babyfoot\BabyfootGameKnockout')->findOneBy(
+                array('tournament' => $tournamentId, $winnerOf => $knockout->getId())
+            );
+            return $nextGame;
+        }
+        return null;
     }
 
     /**

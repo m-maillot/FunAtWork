@@ -16,9 +16,34 @@ class BabyfootTournamentArrayMapper
             'id' => $tournament->getId(),
             'name' => $tournament->getName(),
             'started' => $tournament->getStartedDate()->getTimestamp(),
-            'games' => self::transformKnockouts($tournament->getGames())
+            'rounds' => self::splitByRound($tournament->getGames())
         );
 
+    }
+
+    /**
+     * @param $knockoutGames PersistentCollection|BabyfootGameKnockout[]
+     * @return array
+     */
+    public static function splitByRound($knockoutGames)
+    {
+        $roundArray = array();
+
+        /**
+         * @var $knockoutArray BabyfootGameKnockout[]
+         */
+        $knockoutArray = $knockoutGames->toArray();
+        foreach ($knockoutArray as $knockout) {
+            if (!$roundArray[$knockout->getRound()]) {
+                $roundArray[$knockout->getRound()] = array('index' => $knockout->getRound(), 'games' => array());
+            }
+            array_push($roundArray[$knockout->getRound()]['games'], self::transformKnockout($knockout));
+        }
+        $roundFinalArray = array();
+        foreach ($roundArray as $round) {
+            array_push($roundFinalArray, $round);
+        }
+        return $roundFinalArray;
     }
 
     /**

@@ -6,6 +6,7 @@ use App\Entity\Babyfoot\BabyfootGame;
 use App\Entity\Babyfoot\BabyfootGoal;
 use App\Entity\Babyfoot\Mapper\BabyfootGameArrayMapper;
 use App\Entity\Player;
+use App\Resource\Babyfoot\BabyfootGameKnockoutResource;
 use App\Resource\Babyfoot\BabyfootGameResource;
 use App\Resource\Babyfoot\BabyfootGoalResource;
 use App\Resource\PlayerResource;
@@ -33,19 +34,25 @@ class AddGoal implements UseCase
      * @var PlayerResource
      */
     private $playerResource;
+    /**
+     * @var BabyfootGameKnockoutResource
+     */
+    private $knockoutResource;
 
     /**
      * AddGoal constructor.
      * @param BabyfootGoalResource $goalResource
      * @param BabyfootGameResource $gameResource
      * @param PlayerResource $playerResource
+     * @param BabyfootGameKnockoutResource $knockoutResource
      */
     public function __construct(BabyfootGoalResource $goalResource, BabyfootGameResource $gameResource,
-                                PlayerResource $playerResource)
+                                PlayerResource $playerResource, BabyfootGameKnockoutResource $knockoutResource)
     {
         $this->goalResource = $goalResource;
         $this->gameResource = $gameResource;
         $this->playerResource = $playerResource;
+        $this->knockoutResource = $knockoutResource;
     }
 
 
@@ -85,6 +92,10 @@ class AddGoal implements UseCase
             $game->setStatus(BabyfootGame::GAME_OVER);
             $game->setEndedDate(new \DateTime());
             $this->gameResource->createOrUpdate($game);
+            if ($game->getTournament() != null) {
+                $this->updateNextGame($game, $redScore >= 10);
+
+            }
         }
         return new Response(200, "", $game);
     }
@@ -96,5 +107,31 @@ class AddGoal implements UseCase
             || $game->getRedTeam()->getPlayerDefense()->getId() == $strikerId
             || $game->getBlueTeam()->getPlayerAttack()->getId() == $strikerId
             || $game->getBlueTeam()->getPlayerDefense()->getId() == $strikerId;
+    }
+
+    private function updateNextGame(BabyfootGame $game, $redWinner)
+    {
+        $knockoutNextGame = $this->knockoutResource->selectNextGame($game->getTournament()->getId(), $game->getId(), true);
+        if ($knockoutNextGame) {
+            $gameToUpdate = $knockoutNextGame->getGame();
+            if ($redWinner) {
+                $gameToUpdate->setRedTeam($game->getRedTeam());
+            } else {
+                $gameToUpdate->setBlueTeam($game->getRedTeam());
+            }
+            $this->gameResource->createOrUpdate($gameToUpdate);
+        } else {
+            $knockoutNextGame = $this->knockoutResource->selectNextGame($game->getTournament()->getId(), $game->getId(), false);
+            if ($knockoutNextGame) {
+                $gameToUpdate = $knockoutNextGame->getGame();
+                if ($redWinner) {
+                    $gameToUpdate->setRedTeam($game->getRedTeam());
+                } else {
+                    $gameToUpdate->setBlueTeam($game->getRedTeam());
+                }
+                $this->gameResource->createOrUpdate($gameToUpdate);
+            }
+        }
+
     }
 }

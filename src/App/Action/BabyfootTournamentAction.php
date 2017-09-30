@@ -4,6 +4,8 @@ namespace App\Action;
 
 use App\Action\Babyfoot\TournamentParametersParser;
 use App\Action\UseCase\CreateTournament;
+use App\Action\UseCase\StartPlannedGame;
+use App\Entity\Babyfoot\Mapper\BabyfootGameArrayMapper;
 use App\Entity\Babyfoot\Mapper\BabyfootTournamentArrayMapper;
 use App\Entity\Player;
 use App\Resource\Babyfoot\BabyfootGameKnockoutResource;
@@ -76,5 +78,26 @@ class BabyfootTournamentAction
         }
 
         return $response->withStatus(404, 'Tournament not found.');
+    }
+
+    public function startGame(ServerRequestInterface $request, Response $response, $args)
+    {
+        $params = $this->parameterParser->parseStartGame($request);
+
+        if (!$params->isValid()) {
+            return $response->withStatus(400, 'Missing arguments. Arguments required: Game ID to start.');
+        }
+
+        $connectedUser = $request->getAttribute("auth_user", null);
+        if (!$connectedUser) {
+            return $response->withStatus(400, 'Failed to find connected user.');
+        }
+
+        $useCase = new StartPlannedGame($this->gameResource);
+        $useCaseResponse = $useCase->execute($connectedUser, $params->getGameId());
+        if ($useCaseResponse->isSuccess()) {
+            return $response->withJSON(BabyfootGameArrayMapper::transform($useCaseResponse->getData()));
+        }
+        return $response->withStatus($useCaseResponse->getState(), $useCaseResponse->getMessage());
     }
 }

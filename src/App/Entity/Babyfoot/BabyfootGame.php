@@ -5,11 +5,10 @@ namespace App\Entity\Babyfoot;
 use App\Entity\Organization;
 use App\Entity\Player;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity
- * @ORM\Table(name="babyfoot_game")
+ * @Doctrine\ORM\Mapping\Entity
+ * @Doctrine\ORM\Mapping\Table(name="babyfoot_game")
  */
 class BabyfootGame
 {
@@ -20,74 +19,74 @@ class BabyfootGame
     const GAME_CANCELED = 3;
 
     /**
-     * @ORM\Id
-     * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue
+     * @Doctrine\ORM\Mapping\Id
+     * @Doctrine\ORM\Mapping\Column(type="integer")
+     * @Doctrine\ORM\Mapping\GeneratedValue
      * @var int
      */
     protected $id;
 
     /**
-     * @ORM\Column(type="integer")
+     * @Doctrine\ORM\Mapping\Column(type="integer")
      * @var int
      */
     protected $status;
 
     /**
-     * @ORM\ManyToOne(targetEntity="BabyfootTeam", fetch="EAGER")
-     * @ORM\JoinColumn(name="red_team_id", referencedColumnName="id")
+     * @Doctrine\ORM\Mapping\ManyToOne(targetEntity="BabyfootTeam", fetch="EAGER")
+     * @Doctrine\ORM\Mapping\JoinColumn(name="red_team_id", referencedColumnName="id")
      * @var BabyfootTeam
      **/
     protected $redTeam;
 
     /**
-     * @ORM\ManyToOne(targetEntity="BabyfootTeam", fetch="EAGER")
-     * @ORM\JoinColumn(name="blue_team_id", referencedColumnName="id")
+     * @Doctrine\ORM\Mapping\ManyToOne(targetEntity="BabyfootTeam", fetch="EAGER")
+     * @Doctrine\ORM\Mapping\JoinColumn(name="blue_team_id", referencedColumnName="id")
      * @var BabyfootTeam
      **/
     protected $blueTeam;
 
     /**
-     * @ORM\OneToMany(targetEntity="BabyfootGoal", mappedBy="game", fetch="EAGER")
+     * @Doctrine\ORM\Mapping\OneToMany(targetEntity="BabyfootGoal", mappedBy="game", fetch="EAGER")
      * @var ArrayCollection
      */
     protected $goals;
 
     /**
-     * @ORM\Column(type="datetime", nullable=true)
+     * @Doctrine\ORM\Mapping\Column(type="datetime", nullable=true)
      * @var \DateTime
      */
     protected $plannedDate;
 
     /**
-     * @ORM\Column(type="datetime", nullable=true)
+     * @Doctrine\ORM\Mapping\Column(type="datetime", nullable=true)
      * @var \DateTime
      */
     protected $startedDate;
 
     /**
-     * @ORM\Column(type="datetime", nullable=true)
+     * @Doctrine\ORM\Mapping\Column(type="datetime", nullable=true)
      * @var \DateTime
      */
     protected $endedDate;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Player", fetch="EAGER")
-     * @ORM\JoinColumn(name="creator_id", referencedColumnName="id")
+     * @Doctrine\ORM\Mapping\ManyToOne(targetEntity="App\Entity\Player", fetch="EAGER")
+     * @Doctrine\ORM\Mapping\JoinColumn(name="creator_id", referencedColumnName="id")
      * @var Player
      */
     protected $creator;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Organization", fetch="EAGER")
-     * @ORM\JoinColumn(name="organization_id", referencedColumnName="id")
+     * @Doctrine\ORM\Mapping\ManyToOne(targetEntity="App\Entity\Organization", fetch="EAGER")
+     * @Doctrine\ORM\Mapping\JoinColumn(name="organization_id", referencedColumnName="id")
      * @var Organization
      */
     protected $organization;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Babyfoot\BabyfootTournament", fetch="EAGER")
-     * @ORM\JoinColumn(name="tournament_id", referencedColumnName="id")
+     * @Doctrine\ORM\Mapping\ManyToOne(targetEntity="App\Entity\Babyfoot\BabyfootTournament", fetch="EAGER")
+     * @Doctrine\ORM\Mapping\JoinColumn(name="tournament_id", referencedColumnName="id")
      * @var BabyfootTournament
      */
     protected $tournament;
@@ -155,11 +154,27 @@ class BabyfootGame
     }
 
     /**
+     * @param BabyfootTeam $redTeam
+     */
+    public function setRedTeam($redTeam)
+    {
+        $this->redTeam = $redTeam;
+    }
+
+    /**
      * @return BabyfootTeam
      */
     public function getBlueTeam()
     {
         return $this->blueTeam;
+    }
+
+    /**
+     * @param BabyfootTeam $blueTeam
+     */
+    public function setBlueTeam($blueTeam)
+    {
+        $this->blueTeam = $blueTeam;
     }
 
     /**
@@ -184,6 +199,14 @@ class BabyfootGame
     public function getStartedDate()
     {
         return $this->startedDate;
+    }
+
+    /**
+     * @param \DateTime $startedDate
+     */
+    public function setStartedDate($startedDate)
+    {
+        $this->startedDate = $startedDate;
     }
 
     /**
@@ -224,5 +247,13 @@ class BabyfootGame
     public function getOrganization()
     {
         return $this->organization;
+    }
+
+    /**
+     * @return BabyfootTournament
+     */
+    public function getTournament()
+    {
+        return $this->tournament;
     }
 }

@@ -3,6 +3,17 @@
 
 use App\Middleware\TokenAuth;
 
+$logger = $app->getContainer()->get('logger');
+$app->add(new \Tuupola\Middleware\Cors([
+    "origin" => ["*"],
+    "methods" => ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    "headers.allow" => ["Authorization", "Content-type"],
+    "headers.expose" => [],
+    "credentials" => true,
+    "cache" => 0,
+    "logger"  => $logger
+]));
+
 $app->get('/', function ($request, $response, $args) {
     // Sample log message
     $this->logger->info("Slim-Skeleton '/' route");
@@ -27,6 +38,7 @@ $app->group('/api/v1', function () use ($app) {
     $this->group('/babyfoot', function () use ($app) {
         $this->map(['GET'], '/tournaments/{tournament_id}', 'App\Action\BabyfootTournamentAction:fetchOneTournament')->add(new TokenAuth($app, TokenAuth::SCOPE_LOGGED));
         $this->map(['POST'], '/tournaments', 'App\Action\BabyfootTournamentAction:createTournament')->add(new TokenAuth($app, TokenAuth::SCOPE_LOGGED));
+        $this->map(['POST'], '/tournaments/startGame', 'App\Action\BabyfootTournamentAction:startGame')->add(new TokenAuth($app, TokenAuth::SCOPE_LOGGED));
         $this->map(['GET'], '/games', 'App\Action\BabyfootAction:fetchGames')->add(new TokenAuth($app, TokenAuth::SCOPE_LOGGED));
         $this->map(['POST'], '/start', 'App\Action\BabyfootAction:startGame')->add(new TokenAuth($app, TokenAuth::SCOPE_LOGGED));
         $this->map(['GET'], '/games/{game_id}', 'App\Action\BabyfootAction:fetchOneGame')->add(new TokenAuth($app, TokenAuth::SCOPE_LOGGED));

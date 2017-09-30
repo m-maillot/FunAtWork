@@ -67,7 +67,8 @@ $container['App\Action\BabyfootAction'] = function ($c) {
     $gameResource = new BabyfootGameResource($c->get('em'));
     $goalResource = new BabyfootGoalResource($c->get('em'));
     $teamResource = new BabyfootTeamResource($c->get('em'));
-    return new BabyfootAction($c->get('logger'), $teamResource, $gameResource, $goalResource, $playerResource);
+    $knockoutResource = new BabyfootGameKnockoutResource($c->get('em'));
+    return new BabyfootAction($c->get('logger'), $teamResource, $gameResource, $goalResource, $playerResource, $knockoutResource);
 };
 
 /**

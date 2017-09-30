@@ -55,4 +55,14 @@ class TournamentParametersParser
         $startDate->setTimestamp($startDateTimestamp);
         return new CreateTournamentWSParams($startDate, $name, $connectedUser->getOrganization(), $games);
     }
+
+    /**
+     * @param ServerRequestInterface $request
+     * @return StartGameTournamentWSParams
+     */
+    public function parseStartGame(ServerRequestInterface $request)
+    {
+        $gameId = (int)$request->getParsedBody()['gameId'];
+        return new StartGameTournamentWSParams($gameId);
+    }
 }

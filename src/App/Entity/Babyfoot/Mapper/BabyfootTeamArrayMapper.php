@@ -17,7 +17,7 @@ class BabyfootTeamArrayMapper
     public static function transform(BabyfootTeam $team = null)
     {
         if ($team == null) {
-            return array();
+            return null;
         }
         return array(
             'id' => $team->getId(),
