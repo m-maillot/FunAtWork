@@ -87,7 +87,7 @@ class CreateTournament implements UseCase
         foreach ($games as $game) {
             if ($game->isInFirstPool()) {
                 $redTeam = $this->teamManagement->createTeam($creator->getOrganization()->getId(), $game->getRedAttackId(), $game->getRedDefenseId());
-                $blueTeam = $this->teamManagement->createTeam($creator->getOrganization()->getId(), $game->getBlueAttackId(), $game->getRedDefenseId());
+                $blueTeam = $this->teamManagement->createTeam($creator->getOrganization()->getId(), $game->getBlueAttackId(), $game->getBlueDefenseId());
             } else {
                 $redTeam = null;
                 $blueTeam = null;

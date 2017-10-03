@@ -93,7 +93,7 @@ class AddGoal implements UseCase
             $game->setEndedDate(new \DateTime());
             $this->gameResource->createOrUpdate($game);
             if ($game->getTournament() != null) {
-                $this->updateNextGame($game, $redScore >= 10);
+                $this->updateNextGame($game, $redScore > $blueScore);
 
             }
         }
@@ -117,7 +117,7 @@ class AddGoal implements UseCase
             if ($redWinner) {
                 $gameToUpdate->setRedTeam($game->getRedTeam());
             } else {
-                $gameToUpdate->setBlueTeam($game->getRedTeam());
+                $gameToUpdate->setRedTeam($game->getBlueTeam());
             }
             $this->gameResource->createOrUpdate($gameToUpdate);
         } else {
@@ -125,9 +125,9 @@ class AddGoal implements UseCase
             if ($knockoutNextGame) {
                 $gameToUpdate = $knockoutNextGame->getGame();
                 if ($redWinner) {
-                    $gameToUpdate->setRedTeam($game->getRedTeam());
-                } else {
                     $gameToUpdate->setBlueTeam($game->getRedTeam());
+                } else {
+                    $gameToUpdate->setBlueTeam($game->getBlueTeam());
                 }
                 $this->gameResource->createOrUpdate($gameToUpdate);
             }
