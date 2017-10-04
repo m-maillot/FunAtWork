@@ -3,11 +3,10 @@
 namespace App\Entity\Babyfoot;
 
 use App\Entity\Player;
-use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity
- * @ORM\Table(name="babyfoot_goal")
+ * @Doctrine\ORM\Mapping\Entity
+ * @Doctrine\ORM\Mapping\Table(name="babyfoot_goal")
  */
 class BabyfootGoal
 {
@@ -16,41 +15,41 @@ class BabyfootGoal
     const POSITION_DEFENSE = 2;
 
     /**
-     * @ORM\Id
-     * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue
+     * @Doctrine\ORM\Mapping\Id
+     * @Doctrine\ORM\Mapping\Column(type="integer")
+     * @Doctrine\ORM\Mapping\GeneratedValue
      * @var int
      */
     protected $id;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @Doctrine\ORM\Mapping\Column(type="datetime")
      * @var \DateTime
      */
     protected $goalDate;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Player", fetch="EAGER")
-     * @ORM\JoinColumn(name="striker_id", referencedColumnName="id")
+     * @Doctrine\ORM\Mapping\ManyToOne(targetEntity="App\Entity\Player", fetch="EAGER")
+     * @Doctrine\ORM\Mapping\JoinColumn(name="striker_id", referencedColumnName="id")
      * @var Player
      **/
     protected $striker;
 
     /**
-     * @ORM\Column(type="integer")
+     * @Doctrine\ORM\Mapping\Column(type="integer")
      * @var int
      */
     protected $position;
 
     /**
-     * @ORM\Column(type="boolean")
+     * @Doctrine\ORM\Mapping\Column(type="boolean")
      * @var bool
      */
     protected $gamelle;
 
     /**
-     * @ORM\ManyToOne(targetEntity="BabyfootGame", inversedBy="goals")
-     * @ORM\JoinColumn(name="game_id", referencedColumnName="id")
+     * @Doctrine\ORM\Mapping\ManyToOne(targetEntity="BabyfootGame", inversedBy="goals")
+     * @Doctrine\ORM\Mapping\JoinColumn(name="game_id", referencedColumnName="id")
      */
     protected $game;
 

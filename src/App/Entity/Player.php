@@ -2,68 +2,66 @@
 
 namespace App\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-
 /**
- * @ORM\Entity
- * @ORM\Table(name="player")
+ * @Doctrine\ORM\Mapping\Entity
+ * @Doctrine\ORM\Mapping\Table(name="player")
  */
 class Player
 {
 
     /**
-     * @ORM\Id
-     * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue
+     * @Doctrine\ORM\Mapping\Id
+     * @Doctrine\ORM\Mapping\Column(type="integer")
+     * @Doctrine\ORM\Mapping\GeneratedValue
      * @var int
      */
     private $id;
 
     /**
-     * @ORM\Column(type="string")
+     * @Doctrine\ORM\Mapping\Column(type="string")
      * @var string
      */
     private $avatar;
 
     /**
-     * @ORM\Column(type="string")
+     * @Doctrine\ORM\Mapping\Column(type="string")
      * @var string
      */
     private $name;
 
     /**
-     * @ORM\Column(type="string")
+     * @Doctrine\ORM\Mapping\Column(type="string")
      * @var string
      */
     private $surname;
 
     /**
-     * @ORM\Column(type="string")
+     * @Doctrine\ORM\Mapping\Column(type="string")
      * @var string
      */
     private $login;
 
     /**
-     * @ORM\Column(type="string")
+     * @Doctrine\ORM\Mapping\Column(type="string")
      * @var string
      */
     private $password;
 
     /**
-     * @ORM\Column(type="string")
+     * @Doctrine\ORM\Mapping\Column(type="string")
      * @var string
      */
     private $token;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @Doctrine\ORM\Mapping\Column(type="datetime")
      * @var \DateTime
      */
     private $tokenExpire;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Organization", fetch="EAGER")
-     * @ORM\JoinColumn(name="organization_id", referencedColumnName="id")
+     * @Doctrine\ORM\Mapping\ManyToOne(targetEntity="App\Entity\Organization", fetch="EAGER")
+     * @Doctrine\ORM\Mapping\JoinColumn(name="organization_id", referencedColumnName="id")
      * @var Organization
      */
     protected $organization;

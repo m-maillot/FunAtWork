@@ -74,7 +74,6 @@ class PlayerAction
 
     public function signin(ServerRequestInterface $request, Response $response, $args)
     {
-
         $params = $this->parameterParser->parseSignin($request);
         if (!$params->isValid()) {
             $response->withStatus(400, "Missing login or password");
@@ -84,6 +83,10 @@ class PlayerAction
 
         if (!$player) {
             $response->withStatus(404, "Player not found");
+        }
+        if ($player->getTokenExpire() > new \DateTime()) {
+            // Token is valid, don't generate a new one
+            return $response->withJson(array('player' => PlayerArrayMapper::transform($player), 'token' => $player->getToken(), 'expire_at' => $player->getTokenExpire()->getTimestamp()));
         }
         $generatedToken = bin2hex(openssl_random_pseudo_bytes(8));
         $tokenExpiration = new \DateTime();

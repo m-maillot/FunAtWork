@@ -9,51 +9,50 @@
 namespace App\Entity\Babyfoot;
 
 use App\Entity\Organization;
-use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\PersistentCollection;
 
 /**
- * @ORM\Entity
- * @ORM\Table(name="babyfoot_tournament")
+ * @Doctrine\ORM\Mapping\Entity
+ * @Doctrine\ORM\Mapping\Table(name="babyfoot_tournament")
  */
 class BabyfootTournament
 {
 
     /**
-     * @ORM\Id
-     * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue
+     * @Doctrine\ORM\Mapping\Id
+     * @Doctrine\ORM\Mapping\Column(type="integer")
+     * @Doctrine\ORM\Mapping\GeneratedValue
      * @var int
      */
     protected $id;
 
     /**
-     * @ORM\Column(type="string")
+     * @Doctrine\ORM\Mapping\Column(type="string")
      * @var string
      */
     protected $name;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @Doctrine\ORM\Mapping\Column(type="datetime")
      * @var \DateTime
      */
     protected $startedDate;
 
     /**
-     * @ORM\Column(type="datetime", nullable=true)
+     * @Doctrine\ORM\Mapping\Column(type="datetime", nullable=true)
      * @var \DateTime
      */
     protected $endedDate;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Organization", fetch="EAGER")
-     * @ORM\JoinColumn(name="organization_id", referencedColumnName="id", nullable=false)
+     * @Doctrine\ORM\Mapping\ManyToOne(targetEntity="App\Entity\Organization", fetch="EAGER")
+     * @Doctrine\ORM\Mapping\JoinColumn(name="organization_id", referencedColumnName="id", nullable=false)
      * @var Organization
      */
     protected $organization;
 
     /**
-     * @ORM\OneToMany(targetEntity="BabyfootGameKnockout", mappedBy="tournament", fetch="EAGER")
+     * @Doctrine\ORM\Mapping\OneToMany(targetEntity="BabyfootGameKnockout", mappedBy="tournament", fetch="EAGER")
      * @var PersistentCollection
      */
     protected $games;

@@ -2,53 +2,51 @@
 
 namespace App\Entity\Babyfoot;
 
-use Doctrine\ORM\Mapping as ORM;
-
 /**
- * @ORM\Entity
- * @ORM\Table(name="babyfoot_game_knockout")
+ * @Doctrine\ORM\Mapping\Entity
+ * @Doctrine\ORM\Mapping\Table(name="babyfoot_game_knockout")
  */
 class BabyfootGameKnockout
 {
 
     /**
-     * @ORM\Id
-     * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue
+     * @Doctrine\ORM\Mapping\Id
+     * @Doctrine\ORM\Mapping\Column(type="integer")
+     * @Doctrine\ORM\Mapping\GeneratedValue
      * @var int
      */
     protected $id;
 
     /**
-     * @ORM\Column(type="integer")
+     * @Doctrine\ORM\Mapping\Column(type="integer")
      * @var int
      */
     protected $round;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Babyfoot\BabyfootTournament", inversedBy="games")
-     * @ORM\JoinColumn(name="tournament_id", referencedColumnName="id", nullable=false)
+     * @Doctrine\ORM\Mapping\ManyToOne(targetEntity="App\Entity\Babyfoot\BabyfootTournament", inversedBy="games")
+     * @Doctrine\ORM\Mapping\JoinColumn(name="tournament_id", referencedColumnName="id", nullable=false)
      * @var BabyfootTournament
      */
     protected $tournament;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Babyfoot\BabyfootGame", fetch="EAGER")
-     * @ORM\JoinColumn(name="match_id", referencedColumnName="id", nullable=false)
+     * @Doctrine\ORM\Mapping\ManyToOne(targetEntity="App\Entity\Babyfoot\BabyfootGame", fetch="EAGER")
+     * @Doctrine\ORM\Mapping\JoinColumn(name="match_id", referencedColumnName="id", nullable=false)
      * @var BabyfootGame
      */
     protected $game;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Babyfoot\BabyfootGameKnockout", fetch="EAGER")
-     * @ORM\JoinColumn(name="red_game_id", referencedColumnName="id")
+     * @Doctrine\ORM\Mapping\ManyToOne(targetEntity="App\Entity\Babyfoot\BabyfootGameKnockout", fetch="EAGER")
+     * @Doctrine\ORM\Mapping\JoinColumn(name="red_game_id", referencedColumnName="id")
      * @var BabyfootGameKnockout
      */
     protected $redWinnerOf;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Babyfoot\BabyfootGameKnockout", fetch="EAGER")
-     * @ORM\JoinColumn(name="blue_gale_id", referencedColumnName="id")
+     * @Doctrine\ORM\Mapping\ManyToOne(targetEntity="App\Entity\Babyfoot\BabyfootGameKnockout", fetch="EAGER")
+     * @Doctrine\ORM\Mapping\JoinColumn(name="blue_gale_id", referencedColumnName="id")
      * @var BabyfootGameKnockout
      */
     protected $blueWinnerOf;

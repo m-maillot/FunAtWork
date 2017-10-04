@@ -4,40 +4,39 @@ namespace App\Entity\Babyfoot;
 
 use App\Entity\Organization;
 use App\Entity\Player;
-use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity
- * @ORM\Table(name="babyfoot_team")
+ * @Doctrine\ORM\Mapping\Entity
+ * @Doctrine\ORM\Mapping\Table(name="babyfoot_team")
  */
 class BabyfootTeam
 {
 
     /**
-     * @ORM\Id
-     * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue
+     * @Doctrine\ORM\Mapping\Id
+     * @Doctrine\ORM\Mapping\Column(type="integer")
+     * @Doctrine\ORM\Mapping\GeneratedValue
      * @var int
      */
     protected $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Player", fetch="EAGER")
-     * @ORM\JoinColumn(name="attack_player_id", referencedColumnName="id")
+     * @Doctrine\ORM\Mapping\ManyToOne(targetEntity="App\Entity\Player", fetch="EAGER")
+     * @Doctrine\ORM\Mapping\JoinColumn(name="attack_player_id", referencedColumnName="id")
      * @var Player
      **/
     protected $playerAttack;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Player", fetch="EAGER")
-     * @ORM\JoinColumn(name="defense_player_id", referencedColumnName="id")
+     * @Doctrine\ORM\Mapping\ManyToOne(targetEntity="App\Entity\Player", fetch="EAGER")
+     * @Doctrine\ORM\Mapping\JoinColumn(name="defense_player_id", referencedColumnName="id")
      * @var Player
      **/
     protected $playerDefense;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Organization", fetch="EAGER")
-     * @ORM\JoinColumn(name="organization_id", referencedColumnName="id")
+     * @Doctrine\ORM\Mapping\ManyToOne(targetEntity="App\Entity\Organization", fetch="EAGER")
+     * @Doctrine\ORM\Mapping\JoinColumn(name="organization_id", referencedColumnName="id")
      * @var Organization
      */
     protected $organization;

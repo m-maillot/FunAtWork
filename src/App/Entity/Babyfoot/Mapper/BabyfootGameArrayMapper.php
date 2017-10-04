@@ -16,18 +16,30 @@ class BabyfootGameArrayMapper
 {
     public static function transform(BabyfootGame $game)
     {
-        return [
-            'id' => $game->getId(),
-            'redTeam' => BabyfootTeamArrayMapper::transform($game->getRedTeam()),
-            'redTeamGoal' => self::computeGoals($game, $game->getRedTeam()),
-            'blueTeamGoal' => self::computeGoals($game, $game->getBlueTeam()),
-            'blueTeam' => BabyfootTeamArrayMapper::transform($game->getBlueTeam()),
-            'status' => $game->getStatus(),
-            'goals' => BabyfootGoalArrayMapper::transforms($game->getGoals()),
-            'started' => $game->getStartedDate() != null ? $game->getStartedDate()->getTimestamp() : '',
-            'planned' => $game->getPlannedDate() != null ? $game->getPlannedDate()->getTimestamp() : '',
-            'ended' => $game->getEndedDate() != null ? $game->getEndedDate()->getTimestamp() : ''
-        ];
+        $data = array();
+        $data['id'] = $game->getId();
+        $data['status'] = $game->getStatus();
+        if ($game->getRedTeam()) {
+            $data['redTeam'] = BabyfootTeamArrayMapper::transform($game->getRedTeam());
+        }
+        if ($game->getBlueTeam()) {
+            $data['blueTeam'] = BabyfootTeamArrayMapper::transform($game->getBlueTeam());
+        }
+        if ($game->getStatus() > BabyfootGame::GAME_PLANNED) {
+            $data['redTeamGoal'] = self::computeGoals($game, $game->getRedTeam());
+            $data['blueTeamGoal'] = self::computeGoals($game, $game->getBlueTeam());
+        }
+        $data['goals'] = BabyfootGoalArrayMapper::transforms($game->getGoals());
+        if ($game->getStartedDate() != null) {
+            $data['startedDate'] = $game->getStartedDate()->format(\DateTime::ISO8601);
+        }
+        if ($game->getPlannedDate() != null) {
+            $data['plannedDate'] = $game->getPlannedDate()->format(\DateTime::ISO8601);
+        }
+        if ($game->getEndedDate() != null) {
+            $data['endedDate'] = $game->getEndedDate()->format(\DateTime::ISO8601);
+        }
+        return $data;
     }
 
     /**
