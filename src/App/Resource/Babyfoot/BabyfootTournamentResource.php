@@ -41,6 +41,21 @@ class BabyfootTournamentResource extends AbstractResource
     }
 
     /**
+     * @return BabyfootTournament|null
+     */
+    public function selectCurrent()
+    {
+        /**
+         * @var $tournament BabyfootTournament|null
+         */
+        $tournament = $this->entityManager->getRepository('App\Entity\Babyfoot\BabyfootTournament')->findOneBy(
+            array(),
+            array('id' => 'DESC')
+        );
+        return $tournament;
+    }
+
+    /**
      * @param BabyfootTournament $tournament
      * @return BabyfootTournament
      */

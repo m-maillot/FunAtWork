@@ -15,7 +15,7 @@ class BabyfootTournamentArrayMapper
         return array(
             'id' => $tournament->getId(),
             'name' => $tournament->getName(),
-            'started' => $tournament->getStartedDate()->getTimestamp(),
+            'started' => $tournament->getStartedDate()->format(\DateTime::ISO8601),
             'rounds' => self::splitByRound($tournament->getGames())
         );
 

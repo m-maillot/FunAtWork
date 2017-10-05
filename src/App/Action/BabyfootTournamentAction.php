@@ -66,18 +66,30 @@ class BabyfootTournamentAction
 
     public function fetchOneTournament(ServerRequestInterface $request, Response $response, $args)
     {
+        $tournamentId = $args['tournament_id'];
+        $tournament = $this->tournamentResource->selectOne($tournamentId);
+        if ($tournament) {
+            // TODO Check if tournament is done
+            return $response->withJson(BabyfootTournamentArrayMapper::transform($tournament));
+        }
+
+        return $response->withStatus(404, 'Tournament not found.');
+    }
+
+    public function fetchCurrentTournament(ServerRequestInterface $request, Response $response, $args)
+    {
         /**
          * @var $connectedUser Player
          */
         $connectedUser = $request->getAttribute("auth_user", null);
 
         $tournamentId = $args['tournament_id'];
-        $tournament = $this->tournamentResource->selectOne($tournamentId);
+        $tournament = $this->tournamentResource->selectCurrent($tournamentId);
         if ($tournament) {
             return $response->withJson(BabyfootTournamentArrayMapper::transform($tournament));
         }
 
-        return $response->withStatus(404, 'Tournament not found.');
+        return $response->withStatus(404, 'No tournament open');
     }
 
     public function startGame(ServerRequestInterface $request, Response $response, $args)
