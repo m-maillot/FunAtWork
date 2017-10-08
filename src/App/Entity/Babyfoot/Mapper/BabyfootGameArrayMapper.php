@@ -39,6 +39,9 @@ class BabyfootGameArrayMapper
         if ($game->getEndedDate() != null) {
             $data['endedDate'] = $game->getEndedDate()->format(\DateTime::ISO8601);
         }
+        if ($game->getTournament() != null) {
+            $data['tournamentId'] = $game->getTournament()->getId();
+        }
         return $data;
     }
 

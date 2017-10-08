@@ -15,7 +15,7 @@ class BabyfootTournamentArrayMapper
         return array(
             'id' => $tournament->getId(),
             'name' => $tournament->getName(),
-            'started' => $tournament->getStartedDate()->format(\DateTime::ISO8601),
+            'startDate' => $tournament->getStartedDate()->format(\DateTime::ISO8601),
             'rounds' => self::splitByRound($tournament->getGames())
         );
 
@@ -67,21 +67,14 @@ class BabyfootTournamentArrayMapper
      */
     public static function transformKnockout(BabyfootGameKnockout $knockoutGame)
     {
+        $game = BabyfootGameArrayMapper::transform($knockoutGame->getGame());
+
         if ($knockoutGame->getRedWinnerOf()) {
-            return array(
-                'id' => $knockoutGame->getGame()->getId(),
-                'round' => $knockoutGame->getRound(),
-                'redWinnerOf' => $knockoutGame->getRedWinnerOf()->getGame()->getId(),
-                'blueWinnerOf' => $knockoutGame->getBlueWinnerOf()->getGame()->getId(),
-                'detail' => BabyfootGameArrayMapper::transform($knockoutGame->getGame())
-            );
-        } else {
-            return array(
-                'id' => $knockoutGame->getGame()->getId(),
-                'round' => $knockoutGame->getRound(),
-                'detail' => BabyfootGameArrayMapper::transform($knockoutGame->getGame())
-            );
+            $game['redWinnerOf'] = $knockoutGame->getRedWinnerOf()->getGame()->getId();
+            $game['blueWinnerOf'] = $knockoutGame->getBlueWinnerOf()->getGame()->getId();
         }
+
+        return $game;
     }
 
 

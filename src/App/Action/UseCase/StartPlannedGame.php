@@ -37,6 +37,10 @@ class StartPlannedGame implements UseCase
             return new Response(404, "Game not found");
         }
 
+        if ($game->getCreator()->getId() != $creator->getId()) {
+            return new Response(401, "Only the creator can start the game");
+        }
+
         if ($game->getStatus() != BabyfootGame::GAME_PLANNED) {
             return new Response(400, "Can't start game (already started or game over)");
         }
