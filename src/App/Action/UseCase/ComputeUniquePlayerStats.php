@@ -42,7 +42,7 @@ class ComputeUniquePlayerStats implements UseCase
 
     public function execute()
     {
-        $games = $this->gameResource->selectWithoutTournament(null, false);
+        $games = $this->gameResource->select(null, null, false);
         $this->computeStats->compute($games);
         return new Response(200, "", $this->computeStats->getPlayerStatsById($this->playerId));
     }
