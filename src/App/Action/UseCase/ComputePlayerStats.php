@@ -34,9 +34,9 @@ class ComputePlayerStats implements UseCase
         $this->computeStats = new ComputeStats();
     }
 
-    public function execute()
+    public function execute($organizationId)
     {
-        $games = $this->gameResource->selectWithoutTournament(null, false);
+        $games = $this->gameResource->select($organizationId);
         $this->computeStats->compute($games);
         $playerStats = $this->computeStats->getPlayerStats();
         usort($playerStats, function ($a, $b) {
