@@ -77,6 +77,20 @@ class BabyfootAction
         return $response->withStatus(404, 'Game not found.');
     }
 
+    public function fetchCurrentGame(ServerRequestInterface $request, Response $response, $args)
+    {
+        /**
+         * @var $connectedUser Player
+         */
+        $connectedUser = $request->getAttribute("auth_user", null);
+        $game = $this->gameResource->selectCurrent($connectedUser->getOrganization()->getId());
+        if ($game) {
+            return $response->withJson(BabyfootGameArrayMapper::transform($game));
+        }
+
+        return $response->withStatus(404, 'No current game found.');
+    }
+
     public function startGame(ServerRequestInterface $request, Response $response, $args)
     {
         $params = $this->parameterParser->parseCreateGame($request);

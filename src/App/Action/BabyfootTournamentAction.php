@@ -78,13 +78,7 @@ class BabyfootTournamentAction
 
     public function fetchCurrentTournament(ServerRequestInterface $request, Response $response, $args)
     {
-        /**
-         * @var $connectedUser Player
-         */
-        $connectedUser = $request->getAttribute("auth_user", null);
-
-        $tournamentId = $args['tournament_id'];
-        $tournament = $this->tournamentResource->selectCurrent($tournamentId);
+        $tournament = $this->tournamentResource->selectCurrent();
         if ($tournament) {
             return $response->withJson(BabyfootTournamentArrayMapper::transform($tournament));
         }

@@ -4,6 +4,7 @@ namespace App\Entity\Babyfoot\Mapper;
 
 use App\Entity\Babyfoot\BabyfootGame;
 use App\Entity\Babyfoot\BabyfootTeam;
+use App\Entity\Mapper\PlayerArrayMapper;
 use App\Entity\Player;
 
 /**
@@ -19,6 +20,7 @@ class BabyfootGameArrayMapper
         $data = array();
         $data['id'] = $game->getId();
         $data['status'] = $game->getStatus();
+        $data['creator'] = PlayerArrayMapper::transform($game->getCreator());
         if ($game->getRedTeam()) {
             $data['redTeam'] = BabyfootTeamArrayMapper::transform($game->getRedTeam());
         }

@@ -42,6 +42,7 @@ $app->group('/api/v1', function () use ($app) {
         $this->map(['POST'], '/tournaments/startGame', 'App\Action\BabyfootTournamentAction:startGame')->add(new TokenAuth($app, TokenAuth::SCOPE_LOGGED));
         $this->map(['GET'], '/games', 'App\Action\BabyfootAction:fetchGames')->add(new TokenAuth($app, TokenAuth::SCOPE_LOGGED));
         $this->map(['POST'], '/start', 'App\Action\BabyfootAction:startGame')->add(new TokenAuth($app, TokenAuth::SCOPE_LOGGED));
+        $this->map(['GET'], '/games/current', 'App\Action\BabyfootAction:fetchCurrentGame')->add(new TokenAuth($app, TokenAuth::SCOPE_LOGGED));
         $this->map(['GET'], '/games/{game_id}', 'App\Action\BabyfootAction:fetchOneGame')->add(new TokenAuth($app, TokenAuth::SCOPE_LOGGED));
         $this->map(['POST'], '/stop', 'App\Action\BabyfootAction:gameOver')->add(new TokenAuth($app, TokenAuth::SCOPE_LOGGED));
         $this->map(['POST'], '/goal', 'App\Action\BabyfootAction:addGoal')->add(new TokenAuth($app, TokenAuth::SCOPE_LOGGED));
