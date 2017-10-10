@@ -37,16 +37,20 @@ class ComputePlayerStats implements UseCase
     public function execute($organizationId)
     {
         $games = $this->gameResource->select($organizationId, null, false);
-        $this->computeStats->compute($games);
-        $playerStats = $this->computeStats->getPlayerStats();
-        usort($playerStats, function ($a, $b) {
+        if (count($games) > 0) {
+            $this->computeStats->compute($games);
+            $playerStats = $this->computeStats->getPlayerStats();
+            usort($playerStats, function ($a, $b) {
 
-            /**
-             * @var $a PlayerStats
-             * @var $b PlayerStats
-             */
-            return $b->getEloRanking() * 100 - $a->getEloRanking() * 100;
-        });
+                /**
+                 * @var $a PlayerStats
+                 * @var $b PlayerStats
+                 */
+                return $b->getEloRanking() * 100 - $a->getEloRanking() * 100;
+            });
+        } else {
+            $playerStats = array();
+        }
         return new Response(200, "", $playerStats);
     }
 
