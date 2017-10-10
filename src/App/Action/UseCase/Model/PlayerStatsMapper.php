@@ -28,6 +28,7 @@ class PlayerStatsMapper
     {
         return [
             'player' => PlayerArrayMapper::transform($playerStats->player),
+            'rank' => $playerStats->rank,
             'eloRanking' => $playerStats->getEloRanking(),
             'gamePlayed' => $playerStats->gamePlayed,
             'victory' => $playerStats->victory,
@@ -40,16 +41,9 @@ class PlayerStatsMapper
 
     public static function transformStatWithHistory(PlayerStats $playerStats)
     {
-        return [
-            'player' => PlayerArrayMapper::transform($playerStats->player),
-            'eloRanking' => $playerStats->getEloRanking(),
-            'gamePlayed' => $playerStats->gamePlayed,
-            'victory' => $playerStats->victory,
-            'loose' => $playerStats->loose,
-            'goalAverage' => $playerStats->goalAverage,
-            'goals' => $playerStats->goals,
-            'matchs' => self::transformHistories($playerStats->matchsHistory)
-        ];
+        $output = self::transformStat($playerStats);
+        $output['matchs'] = self::transformHistories($playerStats->matchsHistory);
+        return $output;
     }
 
     /**

@@ -90,7 +90,7 @@ class PlayerAction
         }
         $generatedToken = bin2hex(openssl_random_pseudo_bytes(8));
         $tokenExpiration = new \DateTime();
-        $interval = new \DateInterval('P1M');
+        $interval = new \DateInterval('P6M');
         $tokenExpiration->add($interval);
         $player->setToken($generatedToken);
         $player->setTokenExpire($tokenExpiration);

@@ -27,6 +27,9 @@ class ComputeStats
 
     private $teamsStats = array();
     private $teamsStatsNotOrdered = array();
+    /**
+     * @var PlayerStats[]
+     */
     private $playersStats = array();
     private $playersStatsNotOrdered = array();
 
@@ -61,6 +64,20 @@ class ComputeStats
             return $b->eloRanking * 100 - $a->eloRanking * 100;
         });
 
+        usort($this->playersStats, function ($a, $b) {
+
+            /**
+             * @var $a PlayerStats
+             * @var $b PlayerStats
+             */
+            return $b->getEloRanking() * 100 - $a->getEloRanking() * 100;
+        });
+        $i = 1;
+        foreach ($this->playersStats as $playersStat) {
+            $playersStat->rank = $i;
+            $i++;
+        }
+
         return true;
     }
 
@@ -74,9 +91,18 @@ class ComputeStats
         return $this->playersStats;
     }
 
+    /**
+     * @param $playerId int
+     * @return PlayerStats|null
+     */
     public function getPlayerStatsById($playerId)
     {
-        return $this->playersStats[$playerId];
+        foreach ($this->playersStats as $playersStat) {
+            if ($playersStat->player->getId() == $playerId) {
+                return $playersStat;
+            }
+        }
+        return null;
     }
 
     private function isValidGame(BabyfootGame $game)
@@ -220,7 +246,8 @@ class ComputeStats
         $blueTeam->goalAverage += $blueGoal;
     }
 
-    private function getGoalsForUser(BabyfootGame $game, PlayerStats $playerStats) {
+    private function getGoalsForUser(BabyfootGame $game, PlayerStats $playerStats)
+    {
         $goals = 0;
         foreach ($game->getGoals() as $goal) {
             if ($goal->getStriker()->getId() === $playerStats->player->getId()) {

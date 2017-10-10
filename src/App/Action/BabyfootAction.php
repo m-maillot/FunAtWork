@@ -182,8 +182,12 @@ class BabyfootAction
 
     public function computeUniquePlayerStats(ServerRequestInterface $request, Response $response, $args)
     {
+        /**
+         * @var $connectedUser Player
+         */
+        $connectedUser = $request->getAttribute("auth_user", null);
         $useCase = new ComputeUniquePlayerStats($this->gameResource, $args['player_id']);
-        $responseUseCase = $useCase->execute();
+        $responseUseCase = $useCase->execute($connectedUser->getOrganization()->getId());
         if ($responseUseCase->isSuccess()) {
             return $response->withJson(PlayerStatsMapper::transformStatWithHistory($responseUseCase->getData()));
         }

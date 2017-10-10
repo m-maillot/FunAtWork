@@ -13,15 +13,14 @@ use App\Entity\Player;
 
 class PlayerStats
 {
-
+    /**
+     * @var int player rank
+     */
+    public $rank = 0;
     /**
      * @var Player
      */
     public $player;
-    /**
-     * @var int count of goals
-     */
-    public $goal = 0;
     /**
      * @var int count of goal when player is attack
      */
@@ -47,7 +46,7 @@ class PlayerStats
      */
     public $goalAverage = 0;
     /**
-     * @var int goal average by match (for each game, with substitute conceded goals
+     * @var int count of goals
      */
     public $goals = 0;
     /**
