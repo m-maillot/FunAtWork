@@ -26,6 +26,7 @@ class PlayerStatsMapper
 
     public static function transformStat(PlayerStats $playerStats)
     {
+        $goalsByMatch = ($playerStats->gamePlayed > 0) ? $playerStats->goals / $playerStats->gamePlayed : 0;
         return [
             'player' => PlayerArrayMapper::transform($playerStats->player),
             'rank' => $playerStats->rank,
@@ -35,7 +36,7 @@ class PlayerStatsMapper
             'loose' => $playerStats->loose,
             'goalAverage' => $playerStats->goalAverage,
             'goals' => $playerStats->goals,
-            'goalsByMatch' => $playerStats->goals / $playerStats->gamePlayed
+            'goalsByMatch' => $goalsByMatch
         ];
     }
 

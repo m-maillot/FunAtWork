@@ -53,10 +53,12 @@ class ComputeUniquePlayerStats implements UseCase
     public function execute($organizationId)
     {
         $games = $this->gameResource->select($organizationId, null, false);
-        if ($games > 0) {
+        $stat = null;
+        if (count($games) > 0) {
             $this->computeStats->compute($games);
             $stat = $this->computeStats->getPlayerStatsById($this->playerId);
-        } else {
+        }
+        if (!$stat) {
             $stat = new PlayerStats();
             $stat->rank = -1;
             $stat->goals = 0;
