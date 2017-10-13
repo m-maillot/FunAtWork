@@ -34,25 +34,19 @@ class AddGoal implements UseCase
      * @var PlayerResource
      */
     private $playerResource;
-    /**
-     * @var BabyfootGameKnockoutResource
-     */
-    private $knockoutResource;
 
     /**
      * AddGoal constructor.
      * @param BabyfootGoalResource $goalResource
      * @param BabyfootGameResource $gameResource
      * @param PlayerResource $playerResource
-     * @param BabyfootGameKnockoutResource $knockoutResource
      */
     public function __construct(BabyfootGoalResource $goalResource, BabyfootGameResource $gameResource,
-                                PlayerResource $playerResource, BabyfootGameKnockoutResource $knockoutResource)
+                                PlayerResource $playerResource)
     {
         $this->goalResource = $goalResource;
         $this->gameResource = $gameResource;
         $this->playerResource = $playerResource;
-        $this->knockoutResource = $knockoutResource;
     }
 
 
@@ -86,17 +80,6 @@ class AddGoal implements UseCase
         $goal = new BabyfootGoal(0, new \DateTime(), $striker, $position, $gamelle, $game);
         $goal = $this->goalResource->create($goal);
         $game->getGoals()->add($goal);
-        $blueScore = BabyfootGameArrayMapper::computeGoals($game, $game->getBlueTeam());
-        $redScore = BabyfootGameArrayMapper::computeGoals($game, $game->getRedTeam());
-        if ($blueScore >= 10 || $redScore >= 10) {
-            $game->setStatus(BabyfootGame::GAME_OVER);
-            $game->setEndedDate(new \DateTime());
-            $this->gameResource->createOrUpdate($game);
-            if ($game->getTournament() != null) {
-                $this->updateNextGame($game, $redScore > $blueScore);
-
-            }
-        }
         return new Response(200, "", $game);
     }
 
@@ -107,31 +90,5 @@ class AddGoal implements UseCase
             || $game->getRedTeam()->getPlayerDefense()->getId() == $strikerId
             || $game->getBlueTeam()->getPlayerAttack()->getId() == $strikerId
             || $game->getBlueTeam()->getPlayerDefense()->getId() == $strikerId;
-    }
-
-    private function updateNextGame(BabyfootGame $game, $redWinner)
-    {
-        $knockoutNextGame = $this->knockoutResource->selectNextGame($game->getTournament()->getId(), $game->getId(), true);
-        if ($knockoutNextGame) {
-            $gameToUpdate = $knockoutNextGame->getGame();
-            if ($redWinner) {
-                $gameToUpdate->setRedTeam($game->getRedTeam());
-            } else {
-                $gameToUpdate->setRedTeam($game->getBlueTeam());
-            }
-            $this->gameResource->createOrUpdate($gameToUpdate);
-        } else {
-            $knockoutNextGame = $this->knockoutResource->selectNextGame($game->getTournament()->getId(), $game->getId(), false);
-            if ($knockoutNextGame) {
-                $gameToUpdate = $knockoutNextGame->getGame();
-                if ($redWinner) {
-                    $gameToUpdate->setBlueTeam($game->getRedTeam());
-                } else {
-                    $gameToUpdate->setBlueTeam($game->getBlueTeam());
-                }
-                $this->gameResource->createOrUpdate($gameToUpdate);
-            }
-        }
-
     }
 }

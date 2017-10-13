@@ -2,12 +2,19 @@
 
 namespace App\Action\Babyfoot;
 
+use App\Action\Babyfoot\Model\GoalGame;
+use App\Entity\Player;
+
 /**
  *
  */
 class BabyfootGameOverWSParams
 {
 
+    /**
+     * @var Player
+     */
+    private $connectedUser;
     /**
      * @var int
      */
@@ -19,14 +26,23 @@ class BabyfootGameOverWSParams
     private $canceled;
 
     /**
+     * @var GoalGame[]
+     */
+    private $goals;
+
+    /**
      * BabyfootGameOverWSParams constructor.
+     * @param $connectedUser
      * @param int $gameId
      * @param bool $canceled
+     * @param $goals
      */
-    public function __construct($gameId, $canceled)
+    public function __construct($connectedUser, $gameId, $canceled, $goals)
     {
+        $this->connectedUser = $connectedUser;
         $this->gameId = $gameId;
         $this->canceled = $canceled;
+        $this->goals = $goals;
     }
 
     /**
@@ -43,6 +59,22 @@ class BabyfootGameOverWSParams
     public function isCanceled()
     {
         return $this->canceled;
+    }
+
+    /**
+     * @return GoalGame[]
+     */
+    public function getGoals()
+    {
+        return $this->goals;
+    }
+
+    /**
+     * @return Player
+     */
+    public function getConnectedUser()
+    {
+        return $this->connectedUser;
     }
 
     /**
