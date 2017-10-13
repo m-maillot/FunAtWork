@@ -20,7 +20,8 @@ class BabyfootGoalArrayMapper
     {
         return array(
             'id' => $goal->getId(),
-            'stricker' => PlayerArrayMapper::transform($goal->getStriker()),
+            'date' => $goal->getGoalDate()->format(\DateTime::ISO8601),
+            'striker' => PlayerArrayMapper::transform($goal->getStriker()),
             'position' => $goal->getPosition()
         );
     }

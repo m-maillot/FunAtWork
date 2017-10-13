@@ -31,7 +31,6 @@ class BabyfootGameArrayMapper
             $data['redTeamGoal'] = self::computeGoals($game, $game->getRedTeam());
             $data['blueTeamGoal'] = self::computeGoals($game, $game->getBlueTeam());
         }
-        $data['goals'] = BabyfootGoalArrayMapper::transforms($game->getGoals());
         if ($game->getStartedDate() != null) {
             $data['startedDate'] = $game->getStartedDate()->format(\DateTime::ISO8601);
         }
@@ -46,6 +45,7 @@ class BabyfootGameArrayMapper
         }
         $data['mode'] = $game->getMode();
         $data['modeLimitValue'] = $game->getModeLimitValue();
+        $data['goals'] = BabyfootGoalArrayMapper::transforms($game->getGoals());
         return $data;
     }
 

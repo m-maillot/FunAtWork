@@ -113,9 +113,9 @@ class AddGoal implements UseCase
             return $blueScore >= $game->getModeLimitValue() || $redScore >= $game->getModeLimitValue();
         } else if ($game->getMode() == BabyfootGame::GAME_MODE_TIME) {
 
-            return $blueScore > 0 && $redScore > 0 && $blueScore != $redScore &&
+            return ($blueScore > 0 || $redScore > 0) && $blueScore != $redScore &&
                 // Add 30 seconds on extra time to handle connection latency from client
-                $game->getStartedDate()->getTimestamp() + ($game->getModeLimitValue() * 60 + 30) > time();
+                time() > $game->getStartedDate()->getTimestamp() + ($game->getModeLimitValue() * 60 + 30);
         }
         return false;
     }
