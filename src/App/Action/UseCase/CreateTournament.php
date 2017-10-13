@@ -11,7 +11,6 @@ namespace App\Action\UseCase;
 
 use App\Action\Babyfoot\CreateTournamentWSParams;
 use App\Action\Babyfoot\Model\TournamentGame;
-use App\Action\Babyfoot\Model\TournamentGameKnockout;
 use App\Entity\Babyfoot\BabyfootGame;
 use App\Entity\Babyfoot\BabyfootGameKnockout;
 use App\Entity\Babyfoot\BabyfootTournament;
@@ -95,6 +94,7 @@ class CreateTournament implements UseCase
 
             // Create the game
             $createdGame = new BabyfootGame(0, BabyfootGame::GAME_PLANNED, $blueTeam, $redTeam,
+                BabyfootGame::GAME_MODE_TIME, 7,
                 null, $game->getPlannedDate(), null, $creator, $creator->getOrganization(), $tournament);
             $createdGame = $this->gameResource->createOrUpdate($createdGame);
 

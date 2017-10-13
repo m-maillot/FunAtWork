@@ -22,7 +22,7 @@ $app->get('/', function ($request, $response, $args) {
     return 'Nothing here :)';
 });
 
-$app->group('/api/v2', function () use ($app) {
+$app->group('/api/v1', function () use ($app) {
 
     $this->map(['POST'], '/signin', "App\Action\PlayerAction:signin");
 

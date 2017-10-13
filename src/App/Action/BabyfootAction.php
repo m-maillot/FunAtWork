@@ -99,14 +99,8 @@ class BabyfootAction
             return $response->withStatus(400, 'Missing arguments. Arguments required: Blue players, Red players identifier.');
         }
 
-        $connectedUser = $request->getAttribute("auth_user", null);
-        if (!$connectedUser) {
-            return $response->withStatus(400, 'Failed to find connected user.');
-        }
-
         $useCase = new StartNewGame($this->teamResource, $this->gameResource, $this->playerResource);
-        $useCaseResponse = $useCase->execute($connectedUser, $params->getBluePlayerAttackId(), $params->getBluePlayerDefenseId(),
-            $params->getRedPlayerAttackId(), $params->getRedPlayerDefenseId());
+        $useCaseResponse = $useCase->execute($params);
         if ($useCaseResponse->isSuccess()) {
             return $response->withJSON(BabyfootGameArrayMapper::transform($useCaseResponse->getData()));
         }

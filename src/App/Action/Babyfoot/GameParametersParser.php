@@ -26,11 +26,16 @@ class GameParametersParser
 
     public function parseCreateGame(ServerRequestInterface $request)
     {
-        $bluePlayerAttackId = (int)$request->getParsedBody()['redPlayerAttackId'];
-        $bluePlayerDefenseId = (int)$request->getParsedBody()['redPlayerDefenseId'];
-        $redPlayerAttackId = (int)$request->getParsedBody()['bluePlayerAttackId'];
-        $redPlayerDefenseId = (int)$request->getParsedBody()['bluePlayerDefenseId'];
-        return new BabyfootCreateGameWSParams($redPlayerAttackId, $redPlayerDefenseId, $bluePlayerAttackId, $bluePlayerDefenseId);
+        $connectedUser = $request->getAttribute("auth_user", null);
+        $data = $request->getParsedBody();
+        $redPlayerAttackId = (int)$data['redPlayerAttackId'];
+        $redPlayerDefenseId = (int)$data['redPlayerDefenseId'];
+        $bluePlayerAttackId = (int)$data['bluePlayerAttackId'];
+        $bluePlayerDefenseId = (int)$data['bluePlayerDefenseId'];
+        $mode = (int)$data['mode'];
+        $modeLimit = (int)$data['modeLimitValue'];
+        return new BabyfootCreateGameWSParams($connectedUser, $redPlayerAttackId, $redPlayerDefenseId,
+            $bluePlayerAttackId, $bluePlayerDefenseId, $mode, $modeLimit);
     }
 
     public function parseAddGoal(ServerRequestInterface $request)

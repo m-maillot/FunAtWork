@@ -18,6 +18,9 @@ class BabyfootGame
     const GAME_OVER = 2;
     const GAME_CANCELED = 3;
 
+    const GAME_MODE_SCORE = 1;
+    const GAME_MODE_TIME = 2;
+
     /**
      * @Doctrine\ORM\Mapping\Id
      * @Doctrine\ORM\Mapping\Column(type="integer")
@@ -45,6 +48,18 @@ class BabyfootGame
      * @var BabyfootTeam
      **/
     protected $blueTeam;
+
+    /**
+     * @Doctrine\ORM\Mapping\Column(type="integer")
+     * @var int
+     */
+    protected $mode;
+
+    /**
+     * @Doctrine\ORM\Mapping\Column(type="integer")
+     * @var int
+     */
+    protected $modeLimitValue;
 
     /**
      * @Doctrine\ORM\Mapping\OneToMany(targetEntity="BabyfootGoal", mappedBy="game", fetch="EAGER")
@@ -97,6 +112,8 @@ class BabyfootGame
      * @param int $status
      * @param BabyfootTeam $redTeam
      * @param BabyfootTeam $blueTeam
+     * @param int $mode
+     * @param int $modeLimitValue
      * @param \DateTime $startedDate
      * @param \DateTime $plannedDate
      * @param \DateTime $endedDate
@@ -105,6 +122,7 @@ class BabyfootGame
      * @param BabyfootTournament|null $tournament
      */
     public function __construct($id, $status, BabyfootTeam $redTeam = null, BabyfootTeam $blueTeam = null,
+                                $mode, $modeLimitValue,
                                 \DateTime $startedDate = null, \DateTime $plannedDate = null, \DateTime $endedDate = null, Player $creator, Organization $organization,
                                 BabyfootTournament $tournament = null)
     {
@@ -112,6 +130,8 @@ class BabyfootGame
         $this->status = $status;
         $this->redTeam = $redTeam;
         $this->blueTeam = $blueTeam;
+        $this->mode = $mode;
+        $this->modeLimitValue = $modeLimitValue;
         $this->goals = new ArrayCollection();
         $this->startedDate = $startedDate;
         $this->plannedDate = $plannedDate;
@@ -255,5 +275,21 @@ class BabyfootGame
     public function getTournament()
     {
         return $this->tournament;
+    }
+
+    /**
+     * @return int
+     */
+    public function getMode()
+    {
+        return $this->mode;
+    }
+
+    /**
+     * @return int
+     */
+    public function getModeLimitValue()
+    {
+        return $this->modeLimitValue;
     }
 }

@@ -44,6 +44,8 @@ class BabyfootGameArrayMapper
         if ($game->getTournament() != null) {
             $data['tournamentId'] = $game->getTournament()->getId();
         }
+        $data['mode'] = $game->getMode();
+        $data['modeLimitValue'] = $game->getModeLimitValue();
         return $data;
     }
 

@@ -2,8 +2,8 @@
 
 namespace App\Action\UseCase;
 
+use App\Action\Babyfoot\BabyfootCreateGameWSParams;
 use App\Entity\Babyfoot\BabyfootGame;
-use App\Entity\Player;
 use App\Resource\Babyfoot\BabyfootGameResource;
 use App\Resource\Babyfoot\BabyfootTeamResource;
 use App\Resource\PlayerResource;
@@ -40,33 +40,31 @@ class StartNewGame implements UseCase
 
 
     /**
-     * @param Player $creator
-     * @param int $blueAttackId
-     * @param int $blueDefenseId
-     * @param int $redAttackId
-     * @param int $redDefenseId
+     * @param BabyfootCreateGameWSParams $params
      * @return Response
      */
-    public function execute(Player $creator, $blueAttackId, $blueDefenseId, $redAttackId, $redDefenseId)
+    public function execute(BabyfootCreateGameWSParams $params)
     {
-        if ($this->currentGame()) {
+        $organizationId = $params->getConnectedUser()->getOrganization()->getId();
+
+        if ($this->currentGame($organizationId) != null) {
             return new Response(400, "Game is already running");
         }
 
-        if ($this->teamManagement->detectSamePlayerInTeam($blueAttackId, $blueDefenseId, $redAttackId, $redDefenseId)) {
+        if ($this->teamManagement->detectSamePlayerInTeam($params->getBluePlayerAttackId(), $params->getBluePlayerDefenseId(),
+            $params->getRedPlayerAttackId(), $params->getRedPlayerDefenseId())
+        ) {
             return new Response(400, "Same player in each team");
         }
 
-        $organizationId = $creator->getOrganization()->getId();
-
-        // TODO  Check if other game is running for this organization, should deny request
-        $redTeam = $this->teamManagement->createTeam($organizationId, $redAttackId, $redDefenseId);
-        $blueTeam = $this->teamManagement->createTeam($organizationId, $blueAttackId, $blueDefenseId);
+        $redTeam = $this->teamManagement->createTeam($organizationId, $params->getRedPlayerAttackId(), $params->getRedPlayerDefenseId());
+        $blueTeam = $this->teamManagement->createTeam($organizationId, $params->getBluePlayerAttackId(), $params->getBluePlayerDefenseId());
 
         if ($blueTeam && $redTeam) {
             // Create the game
             $game = new BabyfootGame(0, BabyfootGame::GAME_STARTED, $blueTeam, $redTeam,
-                new \DateTime(), null, null, $creator, $creator->getOrganization(), null);
+                $params->getMode(), $params->getModeLimitValue(), new \DateTime(), null, null,
+                $params->getConnectedUser(), $params->getConnectedUser()->getOrganization(), null);
             $game = $this->gameResource->createOrUpdate($game);
             return new Response(200, "Game created", $game);
         }
@@ -75,11 +73,11 @@ class StartNewGame implements UseCase
 
 
     /**
-     * @return bool
+     * @param $organizationId int
+     * @return BabyfootGame|null
      */
-    private function currentGame()
+    private function currentGame($organizationId)
     {
-        // TODO Check there is no current running game
-        return false;
+        return $this->gameResource->selectCurrent($organizationId);
     }
 }
