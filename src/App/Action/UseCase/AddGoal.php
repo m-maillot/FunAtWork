@@ -34,19 +34,25 @@ class AddGoal implements UseCase
      * @var PlayerResource
      */
     private $playerResource;
+    /**
+     * @var BabyfootGameKnockoutResource
+     */
+    private $knockoutResource;
 
     /**
      * AddGoal constructor.
      * @param BabyfootGoalResource $goalResource
      * @param BabyfootGameResource $gameResource
      * @param PlayerResource $playerResource
+     * @param BabyfootGameKnockoutResource $knockoutResource
      */
     public function __construct(BabyfootGoalResource $goalResource, BabyfootGameResource $gameResource,
-                                PlayerResource $playerResource)
+                                PlayerResource $playerResource, BabyfootGameKnockoutResource $knockoutResource)
     {
         $this->goalResource = $goalResource;
         $this->gameResource = $gameResource;
         $this->playerResource = $playerResource;
+        $this->knockoutResource = $knockoutResource;
     }
 
 
@@ -80,9 +86,39 @@ class AddGoal implements UseCase
         $goal = new BabyfootGoal(0, new \DateTime(), $striker, $position, $gamelle, $game);
         $goal = $this->goalResource->create($goal);
         $game->getGoals()->add($goal);
+
+        if ($this->checkIsGameOver($game)) {
+            $game->setStatus(BabyfootGame::GAME_OVER);
+            $game->setEndedDate(new \DateTime());
+            $game = $this->gameResource->createOrUpdate($game);
+            if ($game->getTournament() != null) {
+                $blueScore = BabyfootGameArrayMapper::computeGoals($game, $game->getBlueTeam());
+                $redScore = BabyfootGameArrayMapper::computeGoals($game, $game->getRedTeam());
+                $this->updateNextGame($game, $redScore > $blueScore);
+            }
+        }
+
         return new Response(200, "", $game);
     }
 
+    /**
+     * @param BabyfootGame $game
+     * @return bool true if game is over, false otherwise
+     */
+    private function checkIsGameOver(BabyfootGame $game)
+    {
+        $blueScore = BabyfootGameArrayMapper::computeGoals($game, $game->getBlueTeam());
+        $redScore = BabyfootGameArrayMapper::computeGoals($game, $game->getRedTeam());
+        if ($game->getMode() == BabyfootGame::GAME_MODE_SCORE) {
+            return $blueScore >= $game->getModeLimitValue() || $redScore >= $game->getModeLimitValue();
+        } else if ($game->getMode() == BabyfootGame::GAME_MODE_TIME) {
+
+            return $blueScore > 0 && $redScore > 0 && $blueScore != $redScore &&
+                // Add 30 seconds on extra time to handle connection latency from client
+                $game->getStartedDate()->getTimestamp() + ($game->getModeLimitValue() * 60 + 30) > time();
+        }
+        return false;
+    }
 
     private function checkPlayerId(BabyfootGame $game, $strikerId)
     {
@@ -90,5 +126,36 @@ class AddGoal implements UseCase
             || $game->getRedTeam()->getPlayerDefense()->getId() == $strikerId
             || $game->getBlueTeam()->getPlayerAttack()->getId() == $strikerId
             || $game->getBlueTeam()->getPlayerDefense()->getId() == $strikerId;
+    }
+
+    /**
+     * Update the next round
+     * @param BabyfootGame $game
+     * @param $redWinner bool
+     */
+    private function updateNextGame(BabyfootGame $game, $redWinner)
+    {
+        $knockoutNextGame = $this->knockoutResource->selectNextGame($game->getTournament()->getId(), $game->getId(), true);
+        if ($knockoutNextGame) {
+            $gameToUpdate = $knockoutNextGame->getGame();
+            if ($redWinner) {
+                $gameToUpdate->setRedTeam($game->getRedTeam());
+            } else {
+                $gameToUpdate->setRedTeam($game->getBlueTeam());
+            }
+            $this->gameResource->createOrUpdate($gameToUpdate);
+        } else {
+            $knockoutNextGame = $this->knockoutResource->selectNextGame($game->getTournament()->getId(), $game->getId(), false);
+            if ($knockoutNextGame) {
+                $gameToUpdate = $knockoutNextGame->getGame();
+                if ($redWinner) {
+                    $gameToUpdate->setBlueTeam($game->getRedTeam());
+                } else {
+                    $gameToUpdate->setBlueTeam($game->getBlueTeam());
+                }
+                $this->gameResource->createOrUpdate($gameToUpdate);
+            }
+        }
+
     }
 }

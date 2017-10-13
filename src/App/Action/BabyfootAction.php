@@ -134,7 +134,7 @@ class BabyfootAction
             return $response->withStatus(400, 'Failed to find connected user.');
         }
 
-        $useCase = new AddGoal($this->goalResource, $this->gameResource, $this->playerResource);
+        $useCase = new AddGoal($this->goalResource, $this->gameResource, $this->playerResource, $this->knockoutResource);
         $responseUseCase = $useCase->execute($connectedUser, $params->getGameId(), $params->getStrikerId(),
             $params->getPosition(), $params->isGamelle());
         if ($responseUseCase->isSuccess()) {
