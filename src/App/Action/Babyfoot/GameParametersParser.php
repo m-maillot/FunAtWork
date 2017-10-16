@@ -51,7 +51,7 @@ class GameParametersParser
     {
         $connectedUser = $request->getAttribute("auth_user", null);
         $data = $request->getParsedBody();
-        $gameId = $data['gameId'];
+        $gameId = $data['game'];
         $isCanceled = $data['canceled'] == '1';
         $goalsJson = $data['goals'];
         $goals = array();
